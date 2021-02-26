@@ -1,0 +1,162 @@
+﻿@using SleepyTimeSoaps.Models
+@model SleepyTimeSoaps.Models.BlogsModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<style>
+    .blog-button {
+        display: inline-block;
+        font-weight: 400;
+        color: #212529;
+        text-align: center;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        text-decoration: none;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+        border-color: #17a2b8 !important;
+        height: 24px;
+        padding-top: 0px !important;
+    }
+
+        .blog-button:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+</style>
+
+<div class="jumbotron bg-info" style="border-radius: 25px; padding-top: 10px; padding-bottom: 10px;">
+
+    <div class="row">
+
+        <!-- Blog Entries Column -->
+        <div class="col-md-8" style="padding-top: 24px;">
+
+            @foreach (Blog post in Model.BlogPosts)
+            {
+                <!-- Blog Post -->
+                <div class="card mb-4">
+                    <img class="card-img-top" src="@post.ImageUrl" alt="Card image cap">
+                    <div class="card-body">
+                        <h2 class="card-title">@post.Title</h2>
+                        <p class="card-text">@Html.Raw(post.Text)</p>
+                        <a href="@post.ButtonHref" class="btn btn-primary">@post.ButtonText →</a>
+                    </div>
+                    <div class="card-footer text-muted">
+                        Posted on @post.PostedReadable by
+                        <a href="#">SleepyTimeSoaps</a>
+                    </div>
+                </div>
+            }
+
+            <!-- Pagination -->
+            <!--<ul class="pagination justify-content-center mb-4">
+                <li class="page-item">
+                    <a class="page-link" href="#">← Older</a>
+                </li>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Newer →</a>
+                </li>
+            </ul>-->
+
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+            <!-- Search Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Search Our Products</h5>
+                <div class="card-body">
+                    @using (Html.BeginForm("Search", "Products"))
+                    {
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="SearchText" id="SearchText" placeholder="Search for...">
+                            <span class="input-group-append">
+                                <button class="btn btn-secondary" type="submit">Go!</button>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Search Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Search News &amp; Blog Posts</h5>
+                <div class="card-body">
+                    @using (Html.BeginForm("Search", "Products"))
+                    {
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="SearchText" id="SearchText" placeholder="Search for...">
+                            <span class="input-group-append">
+                                <button class="btn btn-secondary" type="submit">Go!</button>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Categories Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Categories</h5>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <ul class="list-unstyled mb-0">
+                                <li>
+                                    <a href="/Products/Index/tag=Crisp">Crisp</a>
+                                </li>
+                                <li>
+                                    <a href="/Products/Index/tag=Floral">Floral</a>
+                                </li>
+                                <li>
+                                    <a href="/Products/Index/tag=Sweet">Sweet</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-6">
+                            <ul class="list-unstyled mb-0">
+                                <li>
+                                    <a href="/Products/Index/tag=Relaxing">Relaxing</a>
+                                </li>
+                                <li>
+                                    <a href="/Products/Index/tag=Fruity">Fruity</a>
+                                </li>
+                                <li>
+                                    <a href="/Products/Index/tag=Fresh">Fresh</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Recommended Products</h5>
+                <div class="card-body">
+                    <p>If you're interested in recommendations, have a look at our weekly-updated <a class="blog-button" href="/Products/Index/Recommended">Recommended Products List</a></p>
+                    <p>These products are hand-picked by myself, my fiancé, and our customers to be the best-of-the-best for new-comers to SleepyTimeSoaps.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+</div>

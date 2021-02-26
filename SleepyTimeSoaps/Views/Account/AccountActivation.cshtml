@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Activation Account ^_^";
+}
+
+<div class="bg-secondary w-100" style="border-radius: 20px;">
+
+    <div class="bg-image hover-overlay ripple shadow-1-strong rounded m-4" style="padding-top: 20px; padding-bottom: 20px;"
+         data-mdb-ripple-color="light">
+
+        <h2 class="text-white">Account Activation</h2>
+
+        @if (ViewBag.Status != null && Convert.ToBoolean(ViewBag.Status))
+        {
+            <div class="alert alert-success">
+                <strong>Success!</strong>  Your account has been activated successfully.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                <strong>Error!</strong>@ViewBag.Message
+            </div>
+        }
+
+    </div>
+</div>

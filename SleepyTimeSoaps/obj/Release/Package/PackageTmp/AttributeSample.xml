@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<attribute>
+  <name>Style</name>
+  <data>
+    <attribute>
+      <name>Pixel Hearts</name>
+      <desc></desc>
+      <price>0</price>
+    </attribute>
+    <attribute>
+      <name>Chocolate Bars</name>
+      <desc></desc>
+      <price>2</price>
+    </attribute>
+  </data>
+</attribute>

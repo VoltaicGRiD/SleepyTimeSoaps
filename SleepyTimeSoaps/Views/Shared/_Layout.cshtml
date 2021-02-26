@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
+    <style>
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            margin-left: 10px;
+            margin-right: 10px;
+            font-size: 18pt;
+            font-variant: small-caps;
+        }
+
+        .custom-nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 18pt;
+            font-variant: small-caps;
+        }
+
+        .nav-link {
+            color: white !important;
+            text-decoration: none;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        #footer {
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            height: 20px;
+            background: #222;
+            color: white;
+        }
+    </style>
+
+    <script type="text/javascript" src="https://js.squareupsandbox.com/v2/paymentform">
+    </script>
+
+</head>
+<body class="bg-secondary">
+    @if (User.IsInRole("Admin"))
+    {
+    <div class="d-flex min-vw-100 bg-success justify-content-center text-white" style="margin-top: -50px;">
+        <h4 style="font-variant: small-caps; padding-top: 10px; padding-bottom: 10px;"><a href="/Admin/Dashboard">Administration</a></h4>
+    </div>
+    }
+    else
+    {
+    <div class="d-flex min-vw-100 bg-success justify-content-center text-white" style="margin-top: -50px;">
+        <h4 style="font-variant: small-caps; padding-top: 10px; padding-bottom: 10px;">free shipping over $30 and free shipping anywhere in Colorado</h4>
+    </div>
+    }
+
+    <div style="background-image: url('../../../Content/Images/STS Site Background.png');">
+
+        <div class="d-flex min-vw-100 justify-content-center">
+            <a href="/Home/Index">
+                <img src="~/Content/Images/Company_logo3.png" class="logo" />
+            </a>
+        </div>
+
+        <nav class="navbar navbar-expand-sm justify-content-center navbar-dark" style="height: 100px;">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a href="./" type="button" class="btn btn-info custom-nav-link">
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Products/Index" type="button" class="btn btn-info custom-nav-link">
+                        Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Home/About" type="button" class="btn btn-info custom-nav-link">
+                        About
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Home/Contact" type="button" class="btn btn-info custom-nav-link">
+                        Contact
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Products/Index/tag=Clearance" type="button" class="btn text-white btn-success custom-nav-link">
+                        Clearance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Cart/ReviewCart" type="button" class="btn text-white btn-success custom-nav-link">
+                        <i class="bi bi-bag-check-fill" style="position: relative; left: 1px; bottom: 4px;"></i>
+                        My Bag
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Account/Logout" type="button" class="btn text-white btn-success custom-nav-link">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+
+        </nav>
+        <div style="overflow: hidden; margin-top: -50px; background-repeat: repeat-x repeat-y">
+
+            <div class="container body-content mt-5" style="min-width: 65%; ">
+                @RenderBody()
+                <hr />
+            </div>
+
+            <footer class="bg-secondary text-white" style="height: 50px; padding-bottom: -10px">
+                <div class="row" style="padding-left: 400px; padding-top: 20px;">
+                    <div class="col-md-5">
+                        <p>&copy; @DateTime.Now.Year - SleepyTimeSoaps</p>
+                    </div>
+                    <div class="col-md-5">
+                        <p>&copy; @DateTime.Now.Year - SleepyTimeSoaps</p>
+                    </div>
+                </div>
+
+            </footer>
+
+            @Scripts.Render("~/bundles/jquery")
+            @Scripts.Render("~/bundles/bootstrap")
+            @RenderSection("scripts", required: false)
+        </div>
+    </div>
+</body>
+</html>
