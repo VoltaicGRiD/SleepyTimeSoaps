@@ -32,7 +32,8 @@ namespace SleepyTimeSoaps.Models
         public List<AttributeModel> Attributes { get { return _Attributes; } }
         public bool Naked { get; set; } = false;
         public int Quantity { get; set; } = 1;
-        //public float ModifiedProductPrice { get { return ProductPrice + ModifiedProductPrice; } set { ModifiedProductPrice = value; } }
         
+        public List<string> _SelectedAttributes = new List<string>();
+        public List<string> SelectedAttributes { get { return _SelectedAttributes; } }
     }
 }

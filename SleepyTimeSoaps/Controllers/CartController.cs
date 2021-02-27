@@ -238,6 +238,16 @@ namespace SleepyTimeSoaps.Controllers
 
         public ActionResult ReviewCart()
         {
+            if (ViewBag.Response == null && !string.IsNullOrWhiteSpace(ViewBag.Response))
+            {
+                try
+                {
+                    ViewBag.Response = TempData["response"];
+                }
+                catch (Exception exc) { }
+                { }
+            }
+
             SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
             oConn.Open();
 

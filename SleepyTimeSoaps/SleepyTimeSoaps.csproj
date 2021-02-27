@@ -284,6 +284,7 @@
     <Compile Include="Models\Blog.cs" />
     <Compile Include="Models\BlogsModel.cs" />
     <Compile Include="Models\CheckoutModel.cs" />
+    <Compile Include="Models\CustomerModel.cs" />
     <Compile Include="Models\CustomSerializeModel.cs" />
     <Compile Include="DataAccess\AuthenticationDB.cs" />
     <Compile Include="DataAccess\Role.cs" />
