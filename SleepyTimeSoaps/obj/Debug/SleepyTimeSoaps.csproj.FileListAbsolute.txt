@@ -135,12 +135,16 @@ C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\EntityFram
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\EntityFramework.SqlServer.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.Owin.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.Rest.ClientRuntime.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.Web.Infrastructure.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.Win32.Primitives.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Newtonsoft.Json.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Owin.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\PayPal.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\SendGrid.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Square.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\StarkbankEcdsa.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Swashbuckle.Core.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.AppContext.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Console.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Diagnostics.DiagnosticSource.dll
@@ -154,6 +158,7 @@ C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.IO.
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Linq.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Linq.Expressions.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Net.Http.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Net.Http.Formatting.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Net.Sockets.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Reflection.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Runtime.dll
@@ -166,6 +171,8 @@ C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Sec
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Security.Cryptography.X509Certificates.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Text.RegularExpressions.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Helpers.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Http.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Http.WebHost.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Mvc.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Optimization.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Razor.dll
@@ -173,6 +180,7 @@ C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.WebPages.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.WebPages.Razor.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Xml.ReaderWriter.dll
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\WebActivatorEx.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\WebGrease.dll
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\EntityFramework.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\EntityFramework.SqlServer.xml
@@ -180,7 +188,12 @@ C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Microsoft.Owin.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\Newtonsoft.Json.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\PayPal.xml
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\SendGrid.pdb
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\SendGrid.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Diagnostics.DiagnosticSource.xml
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Net.Http.Formatting.xml
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Http.xml
+C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Http.WebHost.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Helpers.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Mvc.xml
 C:\Users\dusti\source\repos\SleepyTimeSoapsGitHub\SleepyTimeSoaps\bin\System.Web.Optimization.xml

@@ -9,5 +9,13 @@ namespace SleepyTimeSoaps.Models
     {
         public List<Product> _Products = new List<Product>();
         public List<Product> Products { get { return _Products; } }
+
+        public enum Categories
+        {
+            soap = 1,
+            waxmelts = 2,
+            bathsalts = 3
+        }
+        public Categories SelectedCategory { get; set; }
     }
 }

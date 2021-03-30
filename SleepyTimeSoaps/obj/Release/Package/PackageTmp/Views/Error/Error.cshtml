@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewBag.Title = "Error";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="jumbotron bg-dark" style="border-radius: 25px;">
+    <div class="bg-white" style="border-radius: 15px; padding:15px; margin-top: -20px;">
+        <h3 style="color: black">An error occurred!</h3>
+
+        <br />
+        <br />
+
+        <h4>We apologize for any inconvenience this error may have caused.</h4>
+        <p>If you continue seeing this page, please send an email to <a href="mailto:support@sleepytimesoaps.com">SleepyTimeSoaps Support</a> with details.</p>
+
+        <br />
+        <br />
+
+        <p>Message: @ViewBag.Message</p>
+    </div>
+</div>

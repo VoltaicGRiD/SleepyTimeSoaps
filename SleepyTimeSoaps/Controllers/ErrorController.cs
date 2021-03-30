@@ -13,5 +13,12 @@ namespace SleepyTimeSoaps.Controllers
         {
             return View();
         }
+
+        public ActionResult Error(string aspxerrorpath)
+        {
+            ViewBag.Message = aspxerrorpath;
+
+            return View();
+        }
     }
 }

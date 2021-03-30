@@ -1,0 +1,186 @@
+﻿@using SleepyTimeSoaps.Models
+@model SleepyTimeSoaps.Models.AdminDashboardModel
+
+@{
+    Layout = "~/Views/Admin/_DashboardLayout.cshtml";
+}
+
+<style>
+    .orderButton {
+        width: 100px;
+    }
+
+    .orderButtonFull {
+        width: 205px;
+    }
+</style>
+
+<!-- Content Wrapper -->
+<div id="content-wrapper" class="d-flex flex-column">
+
+    <!-- Main Content -->
+    <div id="content" style="padding-top: 20px;">
+
+        <!-- End of Topbar -->
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+                </a>
+            </div>
+
+            <!-- Content Row -->
+            <div class="row">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Order</th>
+                            <th scope="col">Shipping</th>
+                            <th scope="col">Discount</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (CheckoutModel order in Model.Orders)
+                        {
+                            <tr>
+                                <td>@order.OrderID</td>
+                                <td>@order.OrderStatus</td>
+                                <td>
+                                    <p>
+                                        @order.firstname @order.lastname
+                                        <br />
+                                        @order.Customer
+                                    </p>
+                                </td>
+                                <td>
+                                    @foreach (Product p in order.Products)
+                                    {
+                                        <p>
+                                            @p.ProductName
+                                            <br />
+                                            <small>Quantity: @p.Quantity</small>
+                                            <br />
+                                            <small>Naked: @p.Naked</small>
+                                            @foreach (string s in p.SelectedAttributes)
+                                            {
+                                                <br />
+                                                <small>@s</small>
+                                            }
+                                        </p>
+                                        <hr />
+                                    }
+                                </td>
+                                <td>
+                                    <p>
+                                        @order.firstname @order.lastname
+                                        <br />
+                                        @order.address
+                                        @if (!string.IsNullOrWhiteSpace(order.address2))
+                                        {
+                                            <br />
+                                            @order.address2
+                                        }
+                                        <br />
+                                        @order.city, @order.state @order.zip
+                                    </p>
+                                </td>
+                                <td>@(order.DiscountPercentage)%</td>
+                                <td>
+                                    <a class="btn btn-danger disabled orderButton" href="/Admin/Refund/@order.OrderID">Refund</a>
+                                    <a class="btn btn-warning disabled orderButton" href="/Admin/Cancel/@order.OrderID">Cancel</a>
+                                    <br />
+                                    <a class="btn btn-info orderButtonFull" href="/Admin/Acknowledged/@order.OrderID">Acknowledged</a>
+                                    <br />
+                                    <a class="btn btn-primary orderButton" href="/Admin/Packed/@order.OrderID">Packed</a>
+                                    <a class="btn btn-success orderButton" href="/Admin/Shipped/@order.OrderID">Shipped</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- End of Main Content -->
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Your Website 2020</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+@if (ViewBag.Response != null && !string.IsNullOrWhiteSpace(ViewBag.Response))
+{
+    <div class="modal" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Response</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @ViewBag.Response
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (ViewBag.Tracking != null && !string.IsNullOrWhiteSpace(ViewBag.Tracking))
+{
+    using (Html.BeginForm("SubmitShipped", "Admin"))
+    {
+        <div class="modal" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        <h5 class="modal-title" id="exampleModalLabel">Tracking Number</h5>
+
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input id="order" name="order" value="@ViewBag.Tracking" />
+                            <input id="tracking" name="tracking" type="text" class="form-control" placeholder="Tracking Number" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    }
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+
+<script type="text/javascript">
+    $(window).on('load', function () {
+        $('#responseModal').modal('show');
+    });
+</script>

@@ -24,12 +24,20 @@ textarea {
 }
 
 .logo {
-    max-width: 400px;
+    max-width: 250px;
+}
+
+.navbar-row {
+    padding-left: 320px;
 }
 
 @media (max-width: 370px) {
     .logo {
-        max-width: 250px;
+        max-width: 200px;
+    }
+
+    .navbar-row {
+        padding-left: 0px;
     }
 }
 

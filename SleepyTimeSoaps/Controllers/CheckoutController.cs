@@ -85,7 +85,7 @@ namespace SleepyTimeSoaps.Controllers
             {
                 TempData["response"] = "You have no items in your bag. You need to add items before you can review your cart.";
 
-                ProductsModel PM = new ProductsModel();
+                CheckoutModel PM = new CheckoutModel();
 
                 return RedirectToAction("ReviewCart", "Cart", PM);
             }
@@ -106,21 +106,12 @@ namespace SleepyTimeSoaps.Controllers
                         newProduct.Quantity = int.Parse(innerData[1].Split('=')[1].Trim());
                         newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
 
-                        try
+                        if (innerData.Count > 3)
                         {
-                            if (innerData[3] != null && !string.IsNullOrWhiteSpace(innerData[3]))
+                            for (int i = 3; i < innerData.Count; i++)
                             {
-                                for (int i = 3; i < innerData.Count; i++)
-                                {
-                                    if (innerData[i] != null && !string.IsNullOrWhiteSpace(innerData[i]))
-                                    {
-                                        newProduct._SelectedAttributes.Add(innerData[i]);
-                                    }
-                                }
+                                newProduct._SelectedAttributes.Add(innerData[i]);
                             }
-                        } catch (ArgumentOutOfRangeException argExc)
-                        {
-
                         }
 
                         Products.Add(newProduct);
@@ -154,7 +145,7 @@ namespace SleepyTimeSoaps.Controllers
                     {
                         TempData["response"] = $"We currently only have {p.ProductStock} stock of {p.ProductName}. Please purchase less than that quantity.";
 
-                        ProductsModel PM = new ProductsModel();
+                        CheckoutModel PM = new CheckoutModel();
 
                         return RedirectToAction("ReviewCart", "Cart", PM);
                     }
@@ -162,16 +153,49 @@ namespace SleepyTimeSoaps.Controllers
 
                 Model._Products = Products;
 
-                string InsertOrderCommandText = "INSERT INTO Orders (CustomerID, ProductCount, Cart, OrderProcessed, OrderProcessor, OrderTotal) OUTPUT INSERTED.OrderID VALUES (@id, @count, @cart, @processed, @processor, @total);";
-                SqlCommand InsertOrderCommand = new SqlCommand(InsertOrderCommandText, oConn);
-                InsertOrderCommand.Parameters.AddWithValue("@id", CurrentCustomer.CustomerID);
-                InsertOrderCommand.Parameters.AddWithValue("@count", Products.Count);
-                InsertOrderCommand.Parameters.AddWithValue("@cart", CurrentCustomer.CustomerCart);
-                InsertOrderCommand.Parameters.AddWithValue("@processed", 0);
-                InsertOrderCommand.Parameters.AddWithValue("@processor", "Square");
-                InsertOrderCommand.Parameters.AddWithValue("@total", Model.CartTotal);
+                string GetActiveDiscountsCommandText = "SELECT * FROM Discounts WHERE AlwaysActive=1";
+                SqlCommand GetActiveDiscountsCommand = new SqlCommand(GetActiveDiscountsCommandText, oConn);
 
-                int ReturnedOrderID = int.Parse(InsertOrderCommand.ExecuteScalar().ToString());
+                using (SqlDataReader oReader = GetActiveDiscountsCommand.ExecuteReader())
+                {
+                    while (oReader.HasRows && oReader.Read())
+                    {
+                        Model.DiscountApplied = true;
+                        Model.DiscountName = oReader.GetString(1);
+                        Model.DiscountPercentage = oReader.GetInt32(3);
+                    }
+                }
+
+                int ReturnedOrderID = 0;
+
+                if (!Model.DiscountApplied)
+                {
+                    string InsertOrderCommandText = "INSERT INTO Orders (CustomerID, ProductCount, Cart, OrderProcessed, OrderProcessor, OrderTotal) OUTPUT INSERTED.OrderID VALUES (@id, @count, @cart, @processed, @processor, @total);";
+                    SqlCommand InsertOrderCommand = new SqlCommand(InsertOrderCommandText, oConn);
+                    InsertOrderCommand.Parameters.AddWithValue("@id", CurrentCustomer.CustomerID);
+                    InsertOrderCommand.Parameters.AddWithValue("@count", Products.Count);
+                    InsertOrderCommand.Parameters.AddWithValue("@cart", CurrentCustomer.CustomerCart);
+                    InsertOrderCommand.Parameters.AddWithValue("@processed", 0);
+                    InsertOrderCommand.Parameters.AddWithValue("@processor", "Square");
+                    InsertOrderCommand.Parameters.AddWithValue("@total", Model.CartTotal);
+
+                    ReturnedOrderID = int.Parse(InsertOrderCommand.ExecuteScalar().ToString());
+                }
+                else
+                {
+                    string InsertOrderCommandText = "INSERT INTO Orders (CustomerID, ProductCount, Cart, OrderProcessed, OrderProcessor, OrderTotal, OrderDiscount, OrderDiscountName) OUTPUT INSERTED.OrderID VALUES (@id, @count, @cart, @processed, @processor, @total, @discount, @discountname);";
+                    SqlCommand InsertOrderCommand = new SqlCommand(InsertOrderCommandText, oConn);
+                    InsertOrderCommand.Parameters.AddWithValue("@id", CurrentCustomer.CustomerID);
+                    InsertOrderCommand.Parameters.AddWithValue("@count", Products.Count);
+                    InsertOrderCommand.Parameters.AddWithValue("@cart", CurrentCustomer.CustomerCart);
+                    InsertOrderCommand.Parameters.AddWithValue("@processed", 0);
+                    InsertOrderCommand.Parameters.AddWithValue("@processor", "Square");
+                    InsertOrderCommand.Parameters.AddWithValue("@total", Model.CartTotal);
+                    InsertOrderCommand.Parameters.AddWithValue("@discount", Model.DiscountPercentage);
+                    InsertOrderCommand.Parameters.AddWithValue("@discountname", Model.DiscountName);
+
+                    ReturnedOrderID = int.Parse(InsertOrderCommand.ExecuteScalar().ToString());
+                }
 
                 string UpdateActiveOrderCommandText = $"UPDATE Customers SET ActiveOrder=@orderid WHERE CustomerEmail LIKE '%{email}%'";
                 SqlCommand UpdateActiveOrderCommand = new SqlCommand(UpdateActiveOrderCommandText, oConn);
@@ -181,8 +205,60 @@ namespace SleepyTimeSoaps.Controllers
 
                 Model.OrderID = ReturnedOrderID;
 
+                oConn.Close();
+
                 return View("Checkout", Model);
             }
+        }
+
+        public ActionResult SubmitDiscountCode(string code, int OrderID)
+        {
+            string promocode = code.Trim();
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            string CommandText = "SELECT DiscountName, DiscountPercentage FROM Discounts WHERE DiscountCode=@code";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+            oCommand.Parameters.AddWithValue("@code", promocode);
+
+            DiscountModel newDiscount = new DiscountModel();
+
+            bool DiscountValid = false;
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    DiscountValid = true;
+
+                    newDiscount.DiscountName = oReader.GetString(0);
+                    newDiscount.DiscountPercentage = oReader.GetInt32(1);
+
+                    Model.DiscountApplied = true;
+                    Model.DiscountName = oReader.GetString(0);
+                    Model.DiscountPercentage = oReader.GetInt32(1);
+                }
+            }
+
+            if (DiscountValid)
+            {
+                string UpdateOrderCommandText = "UPDATE Orders SET OrderDiscount=@percent, OrderDiscountName=@name WHERE OrderID=@id";
+                SqlCommand UpdateOrderCommand = new SqlCommand(UpdateOrderCommandText, oConn);
+                UpdateOrderCommand.Parameters.AddWithValue("@percent", newDiscount.DiscountPercentage);
+                UpdateOrderCommand.Parameters.AddWithValue("@name", newDiscount.DiscountName);
+                UpdateOrderCommand.Parameters.AddWithValue("@id", OrderID);
+
+                UpdateOrderCommand.ExecuteNonQuery();
+            }
+            else
+            {
+                TempData["response"] = "Discount code is invalid, you may have typed it wrong.\nIf the issue continues, please contact support at support@sleepytimesoaps.com";
+            }
+
+            oConn.Close();
+
+            return RedirectToAction("Checkout", Model);
         }
 
         public ActionResult Checkout()
@@ -191,7 +267,8 @@ namespace SleepyTimeSoaps.Controllers
             {
                 if (TempData["response"] != null || !string.IsNullOrWhiteSpace(TempData["response"].ToString()))
                     ViewBag.Response = TempData["response"].ToString();
-            } catch (NullReferenceException exc)
+            }
+            catch (NullReferenceException exc)
             {
 
             }
@@ -261,22 +338,12 @@ namespace SleepyTimeSoaps.Controllers
                         newProduct.Quantity = int.Parse(innerData[1].Split('=')[1].Trim());
                         newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
 
-                        try
+                        if (innerData.Count > 3)
                         {
-                            if (innerData[3] != null && !string.IsNullOrWhiteSpace(innerData[3]))
+                            for (int i = 3; i < innerData.Count; i++)
                             {
-                                for (int i = 3; i < innerData.Count; i++)
-                                {
-                                    if (innerData[i] != null && !string.IsNullOrWhiteSpace(innerData[i]))
-                                    {
-                                        newProduct._SelectedAttributes.Add(innerData[i]);
-                                    }
-                                }
+                                newProduct._SelectedAttributes.Add(innerData[i]);
                             }
-                        }
-                        catch (ArgumentOutOfRangeException argExc)
-                        {
-
                         }
 
                         Products.Add(newProduct);
@@ -521,9 +588,7 @@ namespace SleepyTimeSoaps.Controllers
                 .Build();
 #endif
 
-            string TotalAsString = CartTotal.ToString();
-
-            int FinalTotal = (int.Parse(TotalAsString.Replace('.', '\0')) * 100);
+            int FinalTotal = int.Parse((CartTotal * 100).ToString());
 
             string nonce = Request.Form["nonce"];
 
@@ -546,7 +611,7 @@ namespace SleepyTimeSoaps.Controllers
             // see the Payments API documentation on our [developer site]
             // (https://developer.squareup.com/docs/payments-api/overview).
             CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest.Builder(nonce, uuid, amount)
-                .Note("SleepyTimeSoaps - payment success.")
+                .Note("<p>You'll receive the following via email:<br/>confirmation of order recieved, <br/>an invoice, <br/>and status updates as your order is prepared and shipped.</p>")
                 .Build();
 
             try
@@ -570,14 +635,20 @@ namespace SleepyTimeSoaps.Controllers
                 else
                     return RedirectToAction("Login", "Account");
 
-                string ClearCartCommandText = $"UPDATE Customers SET CustomerCart='' WHERE CustomerEmail LIKE '%{email}%'";
-                SqlCommand ClearCartCommand = new SqlCommand(ClearCartCommandText, oConn);
+                // TODO :: Update this function to properly work if var email is empty / unassigned
+                if (!string.IsNullOrWhiteSpace(email))
+                {
+                    string ClearCartCommandText = $"UPDATE Customers SET CustomerCart='Empty' WHERE CustomerEmail=@email";
+                    SqlCommand ClearCartCommand = new SqlCommand(ClearCartCommandText, oConn);
 
-                ClearCartCommand.ExecuteNonQuery();
+                    ClearCartCommand.Parameters.AddWithValue("@email", email);
+
+                    ClearCartCommand.ExecuteNonQuery();
+                }
 
                 oConn.Close();
 
-                ViewBag.Response = "Payment complete! " + response.Payment.Note;
+                ViewBag.CheckoutResponse = "<h4>Payment complete!<h4> <br/>" + response.Payment.Note;
                 return View("Confirmation");
             }
             catch (ApiException e)

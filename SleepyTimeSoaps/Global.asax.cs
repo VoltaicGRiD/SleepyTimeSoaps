@@ -3,11 +3,14 @@ using SleepyTimeSoaps.CustomAuthentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
+using System.Web.UI.WebControls;
+using System.IdentityModel.Services;
 
 namespace SleepyTimeSoaps
 {
@@ -20,13 +23,26 @@ namespace SleepyTimeSoaps
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        protected FormsAuthenticationTicket GetAuthTicket()
+        {
+            HttpCookie authCookie = Request.Cookies["stsauth"];
+            if (authCookie == null) return null;
+            try
+            {
+                return FormsAuthentication.Decrypt(authCookie.Value);
+            }
+            catch (CryptographicException exception)
+            {
+                return null;
+            }
+        }
+
         protected void Application_PostAuthenticateRequest(Object sender, EventArgs e)
         {
-            HttpCookie authCookie = Request.Cookies["Cookie1"];
-            if (authCookie != null)
+            var authTicket = GetAuthTicket();
+            if (authTicket != null)
             {
-                FormsAuthenticationTicket authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-
                 var serializeModel = JsonConvert.DeserializeObject<CustomSerializeModel>(authTicket.UserData);
 
                 CustomPrincipal principal = new CustomPrincipal(authTicket.Name);
@@ -38,10 +54,38 @@ namespace SleepyTimeSoaps
 
                 HttpContext.Current.User = principal;
             }
-
+            else
+            {
+                FormsAuthentication.SignOut();
+                HttpContext context = HttpContext.Current;
+                if (context != null && context.Session != null)
+                    Session.Abandon();
+                if (Request.Cookies["stsauth"] != null)
+                {
+                    var c = new HttpCookie("stsauth");
+                    c.Expires = DateTime.Now.AddDays(-30);
+                    Response.Cookies.Add(c);
+                }
+                Server.ClearError();
+            }
         }
 
-
-
+        protected void Application_Error(object sender_, CommandEventArgs e_)
+        {
+            var error = Server.GetLastError();
+            var cryptoEx = error as CryptographicException;
+            if (cryptoEx != null)
+            {
+                FormsAuthentication.SignOut();
+                Session.Abandon();
+                if (Request.Cookies["stsauth"] != null)
+                {
+                    var c = new HttpCookie("stsauth");
+                    c.Expires = DateTime.Now.AddDays(-30);
+                    Response.Cookies.Add(c);
+                }
+                Server.ClearError();
+            }
+        }
     }
 }

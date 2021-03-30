@@ -15,8 +15,8 @@ function onGetCardNonce(event) {
 // initializing various configuration fields and providing implementation for callback functions.
 var paymentForm = new SqPaymentForm({
   // Initialize the payment form elements
-    applicationId: 'sandbox-sq0idb-P-sePCNeyTJ8SL29uMHoTw',
-    locationId: 'LCRKWECB5YE7A',
+    applicationId: 'sq0idp-lzuru296bDZusOTtDxaHww',
+    locationId: 'L39ZKZNWZ1J2M',
     inputClass: 'sq-input',
 
   // Customize the CSS for SqPaymentForm iframe elements
@@ -107,7 +107,7 @@ var paymentForm = new SqPaymentForm({
     createPaymentRequest: function () {
 
       var paymentRequestJson = {
-        requestShippingAddress: false,
+        requestShippingAddress: true,
         requestBillingInfo: true,
         shippingContact: {
           familyName: "CUSTOMER LAST NAME",

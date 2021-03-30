@@ -2,7 +2,7 @@
 @model SleepyTimeSoaps.Models.ProductsModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Shop";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -41,7 +41,7 @@
     })
 </script>
 
-<div class="bg-secondary w-100" style="border-radius: 20px;">
+<div class="bg-dark w-100" style="border-radius: 20px;">
 
     <div class="bg-image hover-overlay ripple shadow-1-strong rounded m-4" style="padding-top: 20px;"
          data-mdb-ripple-color="light">
@@ -53,47 +53,152 @@
         </h4>
         <p class="text-white" style="font-size: 15pt;">All our products are made with all-natural, responsibly-sourced ingredients. All ingredients for particular products are listed on the product's page.</p>
 
+        @using (Html.BeginForm("Search", "Products"))
+        {
+            <div class="input-group text-white" style="padding-left: 0px; padding-right: 20px;">
+                <input type="text" class="form-control" name="SearchText" id="SearchText" placeholder="Search for...">
+                <span class="input-group-append">
+                    <button class="btn btn-secondary" type="submit">Go!</button>
+                </span>
+            </div>
+        }
+        <br />
+
         <p class="text-white">
-            <img src="~/Content/Images/ClearanceTopTag.png" style="object-fit: scale-down; width: 40px; height: 40px" /> = product is on clearance &emsp;
-            <img src="~/Content/Images/RecommendedTopTag.png" style="object-fit: scale-down; width: 40px; height: 40px" /> = product is recommended for newcomers
+            <span class="product-tag-header"><img src="~/Content/Images/ClearanceTopTag.png" class="product-tag-img-header" /> = product is on clearance &emsp;</span>
+            <span class="product-tag-header"><img src="~/Content/Images/RecommendedTopTag.png" class="product-tag-img-header" /> = product is recommended for newcomers &emsp;</span>
+            <span class="product-tag-header"><img src="~/Content/Images/AllergyTopTag.png" class="product-tag-img-header" /> = product is allergy friendly</span>
         </p>
 
-        <div class="row flex-fill d-flex justify-content-center">
+        <div class="categoryContainer">
+            <div class="row">
+                @if (Model.SelectedCategory == ProductsModel.Categories.soap)
+                {
+                    <a class="categoryButtonSelected" href="javascript:history.go(-1)">
+                        <p class="text-center">Soaps</p>
+                        <hr class="categoryLineSelected" />
+                    </a>
+                }
+                else
+                {
+                    <a class="categoryButton" href="/Products/Index/category=soap">
+                        <p class="text-center">Soaps</p>
+                        <hr class="categoryLine" />
+                    </a>
+                }
+                @if (Model.SelectedCategory == ProductsModel.Categories.waxmelts)
+                {
+                    <a class="categoryButtonSelected" href="javascript:history.go(-1)">
+                        <p class="text-center">Wax Melts</p>
+                        <hr class="categoryLineSelected" />
+                    </a>
+                }
+                else
+                {
+                    <a class="categoryButton" href="/Products/Index/category=waxmelts">
+                        <p class="text-center">Wax Melts</p>
+                        <hr class="categoryLine" />
+                    </a>
+                }
+                @if (Model.SelectedCategory == ProductsModel.Categories.bathsalts)
+                {
+                    <a class="categoryButtonSelected" href="javascript:history.go(-1)">
+                        <p class="text-center">Bath Salts</p>
+                        <hr class="categoryLineSelected" />
+                    </a>
+                }
+                else
+                {
+                    <a class="categoryButton" href="/Products/Index/category=bathsalts">
+                        <p class="text-center">Bath Salts</p>
+                        <hr class="categoryLine" />
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="row flex-fill d-flex justify-content-center" style="padding-right: 0px;">
             @foreach (Product product in Model.Products)
             {
                 <a href="/Products/ProductPage/@product.ProductID" style="color: black; text-decoration: none;">
-                    <div class="col-sm mb-4 bg-secondary" style="max-width: 272px; min-width: 297px;">
-                        <div class="card bg-warning align-self-start">
-                            @if (product.ProductIsClearance && product.ProductIsRecommended)
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4 bg-dark">
+                        <div class="card product-card bg-white align-self-start">
+                            @if (product.ProductIsClearance && product.ProductIsRecommended && product.ProductIsAllergyFriendly)
                             {
                                 <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
-                                    <img src="~/Content/Images/ClearanceTopTag.png" style="object-fit: scale-down; width: 40px; height: 40px" />
+                                    <img src="~/Content/Images/ClearanceTopTag.png" class="product-tag" />
                                 </div>
                                 <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 40px;">
-                                    <img src="~/Content/Images/RecommendedTopTag.png" style="object-fit: scale-down; width: 40px; height: 40px" />
+                                    <img src="~/Content/Images/RecommendedTopTag.png" class="product-tag" />
+                                </div>
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 75px;">
+                                    <img src="~/Content/Images/AllergyTopTag.png" class="product-tag" />
                                 </div>
                             }
-                            else if (product.ProductIsClearance && !product.ProductIsRecommended)
+                            else if (product.ProductIsClearance && product.ProductIsRecommended && !product.ProductIsAllergyFriendly)
                             {
                                 <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
-                                    <img src="~/Content/Images/ClearanceTopTag.png" style="object-fit: scale-down; width: 40px; height: 40px" />
+                                    <img src="~/Content/Images/ClearanceTopTag.png" class="product-tag" />
+                                </div>
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 40px;">
+                                    <img src="~/Content/Images/RecommendedTopTag.png" class="product-tag" />
                                 </div>
                             }
-                            else if (!product.ProductIsClearance && product.ProductIsRecommended)
+                            else if (!product.ProductIsClearance && product.ProductIsRecommended && product.ProductIsAllergyFriendly)
                             {
                                 <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
-                                    <img src="~/Content/Images/RecommendedTopTag.png" style="object-fit: scale-down; width: 40px; height: 40px" />
+                                    <img src="~/Content/Images/RecommendedTopTag.png" class="product-tag" />
+                                </div>
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 40px;">
+                                    <img src="~/Content/Images/AllergyTopTag.png" class="product-tag" />
+                                </div>
+                            }
+                            else if (product.ProductIsClearance && !product.ProductIsRecommended && product.ProductIsAllergyFriendly)
+                            {
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
+                                    <img src="~/Content/Images/ClearanceTopTag.png" class="product-tag" />
+                                </div>
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 40px;">
+                                    <img src="~/Content/Images/AllergyTopTag.png" class="product-tag" />
+                                </div>
+                            }
+                            else if (product.ProductIsClearance && !product.ProductIsRecommended && !product.ProductIsAllergyFriendly)
+                            {
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
+                                    <img src="~/Content/Images/ClearanceTopTag.png" class="product-tag" />
+                                </div>
+                            }
+                            else if (!product.ProductIsClearance && product.ProductIsRecommended && !product.ProductIsAllergyFriendly)
+                            {
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
+                                    <img src="~/Content/Images/RecommendedTopTag.png" class="product-tag" />
+                                </div>
+                            }
+                            else if (!product.ProductIsClearance && !product.ProductIsRecommended && product.ProductIsAllergyFriendly)
+                            {
+                                <div style="padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; left: 5px;">
+                                    <img src="~/Content/Images/AllergyTopTag.png" class="product-tag" />
                                 </div>
                             }
 
-                            <div class="card-img w-100" style="padding-right: 9px; height: 160px;">
+                            @if (!string.IsNullOrWhiteSpace(product.ReviewXMLRaw))
+                            {
+                                if (product.Reviews.Count > 0 && product.Reviews != null)
+                                {
+                                    <div class="text-white font-weight-bold" style="border-radius: 5px; font-size: 16pt; width: 50px; height: 35px; margin-bottom: 0px; background-color: rgba(0, 0, 0, 0.4); padding-left: 5px; padding-right: 5px; position: absolute; top: 4px; right: 5px; ">
+                                        <p>@product.AverageRating <i class="bi bi-star-fill reviewstar"></i></p>
+                                    </div>
+                                }
+                            }
+
+                            <div class="card-img w-100 product-img">
                                 <img class="productimg m-1" src="@product.ProductPrimaryImageUrl" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover; background-image: url('../../Content/Images/Spinner.gif'); background-repeat: no-repeat; background-position: center;" />
                             </div>
-                            <div class="card-header text-center" style="height: 50px;">
-                                <span style="font-size: 14pt; font-weight: 600;">@product.ProductName</span>
+                            <div class="card-header product-card-header text-center">
+                                <span>@product.ProductName</span>
 
                             </div>
-                            <div class="card-body" style="padding: 15px 20px 15px 20px; min-height: 170px; max-height: 170px;" data-toggle="tooltip" data-placement="right" title="@product.ProductDescription">
+                            <div class="card-body product-card-body" style="padding: 15px 20px 15px 20px;" data-toggle="tooltip" data-placement="right" title="@product.ProductDescription">
                                 @if (product.ProductDescription.Length > 120)
                                 {
                                     string newDescription = product.ProductDescription.Substring(0, 110) + "...";
@@ -104,10 +209,17 @@
                                     @product.ProductDescription
                                 }
                             </div>
-                            <div class="card-footer w-100" style="height: 50px; position: absolute; bottom: 0;">
-                                <p class="alignleft" style="font-size: 13pt; font-weight: 600;">$@Math.Round(product.ProductPrice) USD</p>
-                                <p class="alignright" style="font-weight: 600; margin-top: 2px;">@product.ProductScentProfile</p>
-                                <a href="/Cart/AddToCartSimple/@product.ProductID" style="position: absolute; left: 95px; bottom: 10px"><i class="bi bi-bag-plus-fill" style="font-size: 1.5rem;"></i></a>
+                            <div class="card-footer product-card-footer w-100" style="height: 50px; position: absolute; bottom: 0;">
+                                <p class="alignleft product-price" style="font-size: 13pt; font-weight: 600;">$@Math.Round(product.ProductPrice) USD</p>
+                                <p class="product-scent">@product.ProductScentProfile</p>
+                                @if (!product.ProductHasAttributes)
+                                {
+                                    <a class="BagButton" href="/Cart/AddToCartSimple/@product.ProductID"><i class="bi bi-bag-plus-fill" style="font-size: 1.5rem;"></i></a>
+                                }
+                                else
+                                {
+                                    <a class="BagButton" href="/Products/ProductPage/@product.ProductID" style="position: absolute; left: 95px; bottom: 10px"><i class="bi bi-bag-plus-fill" style="font-size: 1.5rem;"></i></a>
+                                }
                             </div>
 
                         </div>

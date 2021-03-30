@@ -1,0 +1,95 @@
+﻿@using SleepyTimeSoaps.Models
+@model SleepyTimeSoaps.Models.AccountDashboardModel
+
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h2 {
+        color: white;
+    }
+
+    a {
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="bg-dark w-100" style="border-radius: 20px;">
+
+    <div class="bg-image hover-overlay ripple shadow-1-strong rounded m-4" style="padding-top: 20px;"
+         data-mdb-ripple-color="light">
+
+        <h2 style="text-decoration: underline; color: white;">My Orders</h2>
+        
+        <div class="table text-white pb-4">
+            <div class="row">
+                <div class="col">
+                    <h2>Order ID</h2>
+                </div>
+                <div class="col">
+                    <h2>Products</h2>
+                </div>
+                <div class="col">
+                    <h2>Total</h2>
+                </div>
+                <div class="col">
+                    <h2>Shipped To</h2>
+                </div>
+                <div class="col">
+                    <h2>Discount</h2>
+                </div>
+                <div class="col">
+                    
+                </div>
+            </div>
+            @foreach (CheckoutModel Order in Model.Orders)
+            {
+                <br/>
+                <div class="row">
+                    <div class="col">
+                        <span>@Order.OrderID</span>
+                    </div>
+                    <div class="col">
+                        @foreach (Product p in Order.Products)
+                        {
+                            <span>@p.ProductName</span>
+                            <small>@(p.Naked ? "Naked" : "Wrapped")</small>
+                            if (p.SelectedAttributes.Count > 0)
+                            {
+                                foreach (string s in p.SelectedAttributes)
+                                {
+                                    <br />
+                                    <small class="ml-2">@s</small>
+                                }
+                            }
+                            <br />
+                        }
+                    </div>
+                    <div class="col">
+                        <span>@Order.OrderTotal.ToString("c")</span>
+                    </div>
+                    <div class="col">
+                        <span>@Order.ShippingInfo</span>
+                    </div>
+                    <div class="col">
+                        @if (!string.IsNullOrWhiteSpace(Order.DiscountName))
+                        {
+                            <span>@Order.DiscountName @(Order.DiscountPercentage)%</span>
+                        }
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-primary">
+                            Report an issue
+                        </a>
+                        <a class="btn btn-primary">
+                            Request a refund
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

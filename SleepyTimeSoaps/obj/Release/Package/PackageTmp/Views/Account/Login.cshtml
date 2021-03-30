@@ -11,6 +11,8 @@
 
         <h2 class="text-white">Login</h2>
 
+        <a class="btn btn-primary" href="/Account/Registration/">I don't have an account</a>
+
         @using (Html.BeginForm(null, null, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
         {
             @Html.AntiForgeryToken()

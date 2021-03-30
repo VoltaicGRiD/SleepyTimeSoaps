@@ -39,12 +39,28 @@
         }
 </style>
 
-<div class="jumbotron bg-info" style="border-radius: 25px; padding-top: 10px; padding-bottom: 10px;">
-
-    <div class="row">
+<div class="jumbotron bg-dark" style="border-radius: 25px;">
+    <div class="row" style="margin-top: -20px;">
+        <div>
+            <h2 style="margin-left: 10px; color: white; margin-bottom: 20px; text-shadow: 4px 4px 4px #a363ec">Welcome!</h2>
+            <p class="text-white ml-3 mr-3 mb-5" style="font-size: 14pt">
+                It’s gonna be hard to go back to <i><small>[insert your favorite bath and body seller here]</small></i> once you experience our well dressed
+                and fragrant products made locally in Colorado.
+                <br />
+                <br />
+                Step out of the shower feeling a little more magical and relaxed after using one of our handmade artisan bars
+                <br/>
+                The clear answer and obvious choice to rid yourself of that dirt, sweat, and stress that nature supplies us with.
+                <br/>
+                <br />
+                Oh, and did we mention that all of our soaps are vegan and tested on humans?
+                <br />
+                It’s a natural fistful of magical cleanliness and skin hydration, all topped off with a rich lather—perfect to provide you with a relaxing and magical cleaning experience.
+            </p>
+        </div>
 
         <!-- Blog Entries Column -->
-        <div class="col-md-8" style="padding-top: 24px;">
+        <div class="col-md-8">
 
             @foreach (Blog post in Model.BlogPosts)
             {
@@ -55,6 +71,15 @@
                         <h2 class="card-title">@post.Title</h2>
                         <p class="card-text">@Html.Raw(post.Text)</p>
                         <a href="@post.ButtonHref" class="btn btn-primary">@post.ButtonText →</a>
+                        @if (post.RecommendedProductID != 0)
+                        {
+                            <a href="/Products/ProductPage/@post.RecommendedProductID" class="float-right" style="color: inherit; margin-right: -30px;">
+                                <p style="font-size: 14pt; padding-left: 10px;">We recommend:</p>
+                                <img src="@post.RecommendedProduct.ProductPrimaryImageUrl" class="product-img" style="border-width: 2px; border-color: black; border-radius: 10px;" />
+                                <br />
+                                <p style="font-size: 12pt; text-align: center; padding-top: 10px;">@post.RecommendedProduct.ProductName</p>
+                            </a>
+                        }
                     </div>
                     <div class="card-footer text-muted">
                         Posted on @post.PostedReadable by
@@ -79,7 +104,7 @@
         <div class="col-md-4">
 
             <!-- Search Widget -->
-            <div class="card my-4">
+            <div class="card mb-4">
                 <h5 class="card-header">Search Our Products</h5>
                 <div class="card-body">
                     @using (Html.BeginForm("Search", "Products"))

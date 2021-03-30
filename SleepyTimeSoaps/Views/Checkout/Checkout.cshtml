@@ -6,7 +6,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<script type="text/javascript" src="https://js.squareupsandbox.com/v2/paymentform">
+<script type="text/javascript" src="https://js.squareup.com/v2/paymentform">
 </script>
 
 <script type="text/javascript" src="~/Scripts/sq-payment-form.js"></script>
@@ -32,7 +32,7 @@
                     {
                         <li class="list-group-item d-flex justify-content-between lh-condensed">
                             <div>
-                                <h6 class="my-0">@p.ProductName</h6>
+                                <h6 class="my-0">@p.ProductName <small>x@(p.Quantity)</small></h6>
                                 <small class="text-muted">@(p.Naked ? "Naked" : "Wrapped")</small>
                                 @if (p.SelectedAttributes.Count > 1)
                                 {
@@ -43,7 +43,18 @@
                                     }
                                 }
                             </div>
-                            <span>$@p.ProductPrice</span>
+                            <span>@p.FinalProductPrice.ToString("c")</span>
+                        </li>
+                    }
+                    @if (Model.DiscountApplied)
+                    {
+                        <li class="list-group-item d-flex justify-content-between lh-condensed" style="background-color: #a7fe84">
+                            <div>
+                                <h6 class="my-0">Promo / Discount</h6>
+
+                                <small>@Model.DiscountName</small>
+                            </div>
+                            <span>-@Model.DiscountPercentage%</span>
                         </li>
                     }
                     @if (Model.ShippingSubtotal() == 0)
@@ -54,7 +65,7 @@
 
                                 <small>@Model.ShippingNote</small>
                             </div>
-                            <span>$@Model.ShippingSubtotal()</span>
+                            <span>FREE</span>
                         </li>
                     }
                     else
@@ -64,23 +75,29 @@
                                 <h6 class="my-0">Shipping</h6>
                                 <small>@Model.ShippingNote</small>
                             </div>
-                            <span>$@Model.ShippingSubtotal()</span>
+                            <span>@Model.ShippingSubtotal().ToString("c")</span>
                         </li>
                     }
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Total (USD)</span>
-                        <strong>$@Model.CartTotal</strong>
+                        <strong>@Model.CartTotal.ToString("c")</strong>
                     </li>
                 </ul>
 
-                <form class="card p-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Promo code">
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary">Redeem</button>
+                @using (Html.BeginForm("SubmitDiscountCode", "Checkout"))
+                {
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m._Model)
+
+                    <div class="card p-2">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="code" placeholder="Promo code">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-secondary">Redeem</button>
+                            </div>
                         </div>
                     </div>
-                </form>
+                }
             </div>
             <div class="col-md-8 order-md-1 text-white">
                 @using (Html.BeginForm("UpdateShipping", "Checkout"))
@@ -226,14 +243,14 @@
 
                     <div class="row">
                         <div class="col">
-                            <input type="submit" class="btn w-100 btn-primary" value="Update Shipping Information" />
+                            <input type="submit" class="btn mb-3 w-100 btn-primary" value="Update Shipping Information" />
                         </div>
                     </div>
                 }
 
                 <div>
 
-                    <hr class="mb-4">
+                    <hr class="mb-4 border-white">
 
                     <h4 class="mb-3">Payment</h4>
 
@@ -287,8 +304,8 @@
                                     </div>
                                 </div>
                                 <div class="sq-field">
-                                    <button id="sq-creditcard" class="sq-button" onclick="onGetCardNonce(event)">
-                                        Pay $@Model.CartTotal Now
+                                    <button id="sq-creditcard" class="btn btn-primary" style="min-width: 100%;" onclick="onGetCardNonce(event)">
+                                        Pay @Model.CartTotal.ToString("c") Now
                                     </button>
                                 </div>
                                 <!--

@@ -17,7 +17,7 @@ namespace SleepyTimeSoaps.Controllers
             SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
             oConn.Open();
 
-            string CommandText = "SELECT * FROM BlogPosts";
+            string CommandText = "SELECT * FROM BlogPosts ORDER BY BlogPosted DESC";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 
             using (SqlDataReader oReader = oCommand.ExecuteReader())
@@ -31,8 +31,33 @@ namespace SleepyTimeSoaps.Controllers
                         ImageUrl = oReader.GetString(3),
                         Posted = oReader.GetDateTime(4),
                         ButtonText = oReader.GetString(5),
-                        ButtonHref = oReader.GetString(6)
+                        ButtonHref = oReader.GetString(6),
+                        RecommendedProductID = oReader.IsDBNull(7) ? 0 : oReader.GetInt32(7)
                     });
+                }
+            }
+
+            foreach (Blog post in Model.BlogPosts)
+            {
+                if (post.RecommendedProductID != 0)
+                {
+                    string GetProductCommandText = "SELECT ProductName, ProductPrimaryImageURL FROM Products WHERE ProductID=@id";
+                    SqlCommand GetProductCommand = new SqlCommand(GetProductCommandText, oConn);
+
+                    GetProductCommand.Parameters.AddWithValue("@id", post.RecommendedProductID);
+
+                    Product recProduct = new Product();
+
+                    using (SqlDataReader oReader = GetProductCommand.ExecuteReader())
+                    {
+                        while (oReader.HasRows && oReader.Read())
+                        {
+                            recProduct.ProductName = oReader.GetString(0);
+                            recProduct.ProductPrimaryImageUrl = oReader.GetString(1);
+                        }
+                    }
+
+                    post.RecommendedProduct = recProduct;
                 }
             }
 

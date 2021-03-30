@@ -4,12 +4,17 @@ using SleepyTimeSoaps.DataAccess;
 using SleepyTimeSoaps.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using SendGrid;
+using SendGrid.Helpers.Mail;
+using System.Threading.Tasks;
+using System.Configuration;
 
 namespace SleepyTimeSoaps.Controllers
 {
@@ -58,8 +63,11 @@ namespace SleepyTimeSoaps.Controllers
                             );
 
                         string enTicket = FormsAuthentication.Encrypt(authTicket);
-                        HttpCookie faCookie = new HttpCookie("Cookie1", enTicket);
+                        HttpCookie faCookie = new HttpCookie("stsauth", enTicket);
+                        faCookie.Expires = DateTime.Now.Add(new TimeSpan(1, 1, 0, 0));
                         Response.Cookies.Add(faCookie);
+
+                        UpdateCustomerCart(user.Email);
                     }
 
                     if (Url.IsLocalUrl(ReturnUrl))
@@ -72,6 +80,7 @@ namespace SleepyTimeSoaps.Controllers
                     }
                 }
             }
+
             ModelState.AddModelError("", "Something Wrong: Email or Password is invalid.");
             return View(loginView);
         }
@@ -94,11 +103,20 @@ namespace SleepyTimeSoaps.Controllers
                 string userName = Membership.GetUserNameByEmail(registrationView.Email);
                 if (!string.IsNullOrEmpty(userName))
                 {
-                    ModelState.AddModelError("Warning Email", "Sorry: Email already Exists");
+                    ModelState.AddModelError("", "Sorry: Email already Exists");
                     return View(registrationView);
                 }
 
                 Guid ActivationCode = Guid.NewGuid();
+
+                string password = registrationView.Password;
+                string confirmPassword = registrationView.ConfirmPassword;
+
+                if (password.Trim() != confirmPassword.Trim())
+                {
+                    ModelState.AddModelError("", "The passwords do not match.");
+                    return View(registrationView);
+                }                
 
                 //Save User Data   
                 using (AuthenticationDB dbContext = new AuthenticationDB())
@@ -117,9 +135,24 @@ namespace SleepyTimeSoaps.Controllers
                 }
 
                 //Verification Email  
-                VerificationEmail(registrationView.Email, ActivationCode.ToString());
-                messageRegistration = "Your account has been created successfully. Please check your email to activate your account.";
+                var link = $"https://sleepytimesoaps.com/Account/AccountActivation/{ActivationCode}";
+
+                var apiKey = ConfigurationManager.AppSettings["SendGridAPIKey"];
+                var client = new SendGridClient(apiKey);
+                var from = new EmailAddress("admin@sleepytimesoaps.com", "SleepyTimeSoaps Account Management");
+                var subject = "Verify your account with SleepyTimeSoaps";
+                var to = new EmailAddress(registrationView.Email);
+                var plainTextContent = "Please go to the following URL in order to activate your account: " + link;
+                var htmlContent = "<a href=\"https://sleepytimesoaps.com\"><img src=\"https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo3.png\" width=200px></a> <br/> Please click on the following link in order to activate your account" + "<br/><a href='" + link + "'>Activate Account</a>";
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+                var response = Task.Run(async () => await client.SendEmailAsync(msg)).Result;
+
+                //var email = Task.Run(async () => await VerificationEmail(registrationView.Email, ActivationCode.ToString()));
+                //email.Wait();
+                messageRegistration = "Your account has been created successfully. Please check your email to activate your account.<br/>It may take up to an hour for the email to be delivered. If you don't see the email after that, please send an email to <a href=\"mailto:admin@sleepytimesoaps.com\">'admin@sleepytimesoaps.com</a>'.";
                 statusRegistration = true;
+
+                UpdateCustomerCart(registrationView.Email);
             }
             else
             {
@@ -157,50 +190,205 @@ namespace SleepyTimeSoaps.Controllers
 
         public ActionResult LogOut()
         {
-            HttpCookie cookie = new HttpCookie("Cookie1", "");
+            HttpCookie cookie = new HttpCookie("stsauth", "");
             cookie.Expires = DateTime.Now.AddYears(-1);
             Response.Cookies.Add(cookie);
 
+            Session.Abandon();
             FormsAuthentication.SignOut();
             return RedirectToAction("Login", "Account", null);
         }
 
-        [NonAction]
-        public void VerificationEmail(string email, string activationCode)
+        
+        public async Task VerificationEmail(string email, string activationCode)
         {
-            var url = string.Format("/Account/AccountActivation/{0}", activationCode);
-            var link = Request.Url.AbsoluteUri.Replace(Request.Url.PathAndQuery, url);
+            var link = $"https://sleepytimesoaps.com/Account/AccountActivation/{activationCode}";
 
-            var senderEmail = new MailAddress("admin@sleepytimesoaps.com", "SleepyTimeSoaps Admin");
+            var apiKey = ConfigurationManager.AppSettings["SendGridAPIKey"];
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress("admin@sleepytimesoaps.com", "SleepyTimeSoaps Account Management");
+            var subject = "Verify your account with SleepyTimeSoaps";
+            var to = new EmailAddress(email);
+            var plainTextContent = "Please go to the following URL in order to activate your account: " + link;
+            var htmlContent = "<a href=\"https://sleepytimesoaps.com\"><img src=\"https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo3.png\" width=200px></a> <br/> Please click on the following link in order to activate your account" + "<br/><a href='" + link + "'>Activate Account</a>";
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            var response = await client.SendEmailAsync(msg);
 
-            var fromEmail = new MailAddress("postmaster@sleepytimesoaps.com", "SleepyTimeSoaps Account Manager");
-            var toEmail = new MailAddress(email);
+            //var senderEmail = new MailAddress("admin@sleepytimesoaps.com", "SleepyTimeSoaps Admin");
 
-            var fromEmailPassword = "Cosplay_01";
-            string subject = "SleepyTimeSoaps Account Activation";
+            //var fromEmail = new MailAddress("postmaster@sleepytimesoaps.com", "SleepyTimeSoaps Account Manager");
+            //var toEmail = new MailAddress(email);
 
-            string body = "<br/> Please click on the following link in order to activate your account" + "<br/><a href='" + link + "'> activate account</a>";
+            //var fromEmailPassword = "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";
+            //string subject = "Verify your account with SleepyTimeSoaps";
 
-            var smtp = new SmtpClient
+            //string body = "<a href=\"https://sleepytimesoaps.com\"><img src=\"https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo3.png\" width=200px></a> <br/> Please click on the following link in order to activate your account" + "<br/><a href='" + link + "'>Activate Account</a>";
+
+            //var smtp = new SmtpClient
+            //{
+            //    Host = "smtp.sendgrid.net",
+            //    Port = 25,
+            //    EnableSsl = true,
+            //    DeliveryMethod = SmtpDeliveryMethod.Network,
+            //    UseDefaultCredentials = false,
+            //    Credentials = new NetworkCredential("apikey", fromEmailPassword)
+            //};
+
+            //using (MailMessage message = new MailMessage(fromEmail, toEmail)
+            //{
+            //    Sender = senderEmail,
+            //    Subject = subject,
+            //    Body = body,
+            //    IsBodyHtml = true
+            //})
+
+            //smtp.Send(message);
+        }
+
+        [Authorize]
+        public ActionResult Dashboard()
+        {
+            var user = Membership.GetUser(System.Web.HttpContext.Current.User.Identity.Name);
+            string email = string.Empty;
+
+            if (user != null)
+                email = user.Email;
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            string GetCustomerIDCommandText = $"SELECT CustomerID from Customers WHERE CustomerEmail LIKE '%{email}%'";
+            SqlCommand GetCustomerIDCommand = new SqlCommand(GetCustomerIDCommandText, oConn);
+
+            string CustomerID = GetCustomerIDCommand.ExecuteScalar().ToString();
+
+            string GetCustomerOrdersCommandText = "SELECT OrderID, Cart, OrderNotes, OrderTotal, ShippingInfo, OrderDiscount, OrderDiscountName FROM Orders WHERE CustomerID=@id AND OrderProcessed=1";
+            SqlCommand GetCustomerOrdersCommand = new SqlCommand(GetCustomerOrdersCommandText, oConn);
+            GetCustomerOrdersCommand.Parameters.AddWithValue("@id", CustomerID);
+
+            AccountDashboardModel Model = new AccountDashboardModel();
+
+            using (SqlDataReader oReader = GetCustomerOrdersCommand.ExecuteReader())
             {
-                Host = "smtp.office365.com",
-                Port = 587,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(senderEmail.Address, fromEmailPassword)
-            };
+                while (oReader.HasRows && oReader.Read())
+                {
+                    CheckoutModel newOrder = new CheckoutModel();
 
-            using (MailMessage message = new MailMessage(fromEmail, toEmail)
+                    newOrder.OrderID = oReader.GetInt32(0);
+                    newOrder.Cart = oReader.GetString(1);
+                    newOrder.OrderNotes = oReader.IsDBNull(2) ? "None" : oReader.GetString(2);
+                    newOrder.OrderTotal = (float) oReader.GetDouble(3);
+                    newOrder.ShippingInfo = oReader.GetString(4);
+                    newOrder.DiscountPercentage = oReader.IsDBNull(2) ? 0 : oReader.GetInt32(5);
+                    newOrder.DiscountName = oReader.IsDBNull(2) ? "None" : oReader.GetString(6);
+
+                    Model._Orders.Add(newOrder);
+                }
+            }
+
+
+            foreach (CheckoutModel Order in Model._Orders)
             {
-                Sender = senderEmail,
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            })
+                List<Product> Products = new List<Product>();
+                foreach (string s in Order.Cart.Split(';'))
+                {
+                    Product newProduct = new Product();
 
-                smtp.Send(message);
+                    List<string> innerData = new List<string>();
+                    innerData = s.Replace('}', '\0').Replace('{', '\0').Trim().Split(',').ToList();
 
+                    if (!string.IsNullOrWhiteSpace(innerData[0]))
+                    {
+                        newProduct.ProductID = int.Parse(innerData[0].Split('=')[1].Trim());
+                        newProduct.Quantity = int.Parse(innerData[1].Split('=')[1].Trim());
+                        newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
+
+                        if (innerData.Count > 3)
+                        {
+                            for (int i = 3; i < innerData.Count; i++)
+                            {
+                                newProduct._SelectedAttributes.Add(innerData[i]);
+                            }
+                        }
+
+                        Products.Add(newProduct);
+                    }
+                }
+
+                string ProductDataCommandText = "SELECT ProductID, ProductName, ProductDescription, ProductPrice, ProductStock FROM Products WHERE ProductID=@id";
+                SqlCommand ProductDataCommand = new SqlCommand(ProductDataCommandText, oConn);
+
+                foreach (Product p in Products)
+                {
+                    ProductDataCommand.Parameters.Clear();
+                    ProductDataCommand.Parameters.AddWithValue("@id", p.ProductID);
+
+                    using (SqlDataReader oReader = ProductDataCommand.ExecuteReader())
+                    {
+                        while (oReader.HasRows && oReader.Read())
+                        {
+                            p.ProductID = oReader.GetInt32(0);
+                            p.ProductName = oReader.GetString(1);
+                            p.ProductDescription = oReader.GetString(2);
+                            p.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                            p.ProductStock = oReader.GetInt32(4);
+                        }
+                    }
+                }
+
+                Order._Products = Products;
+            }
+
+            oConn.Close();
+
+            return View(Model);
+        }
+
+        protected void UpdateCustomerCart(string email)
+        {
+            string CurrentCart = string.Empty;
+            try { CurrentCart = Session["Cart"].ToString(); } catch (NullReferenceException nrexc) { }
+
+            if (!string.IsNullOrWhiteSpace(CurrentCart))
+            {
+                SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+                oConn.Open();
+
+                bool UserExists = false;
+
+                string CheckCustomerExistsCommandText = "SELECT CustomerDBID FROM Customers WHERE CustomerEmail=@email";
+                SqlCommand CheckCustomerExistsCommand = new SqlCommand(CheckCustomerExistsCommandText, oConn);
+
+                CheckCustomerExistsCommand.Parameters.AddWithValue("@email", email);
+
+                using (SqlDataReader oReader = CheckCustomerExistsCommand.ExecuteReader())
+                {
+                    if (oReader.HasRows)
+                        UserExists = true;
+                }
+                
+                if (UserExists == false)
+                {
+                    string CreateCustomerCommandText = "INSERT INTO Customers (CustomerID, CustomerName, CustomerEmail) VALUES (@id, @name, @email)";
+                    SqlCommand CreateCustomerCommand = new SqlCommand(CreateCustomerCommandText, oConn);
+
+                    CreateCustomerCommand.Parameters.AddWithValue("@id", Guid.NewGuid());
+                    CreateCustomerCommand.Parameters.AddWithValue("@name", email);
+                    CreateCustomerCommand.Parameters.AddWithValue("@email", email);
+
+                    CreateCustomerCommand.ExecuteNonQuery();
+                }
+
+                string NewCartCommandText = $"UPDATE Customers SET CustomerCart=@cart WHERE CustomerEmail=@email";
+                SqlCommand NewCartCommand = new SqlCommand(NewCartCommandText, oConn);
+
+                NewCartCommand.Parameters.AddWithValue("@cart", CurrentCart);
+                NewCartCommand.Parameters.AddWithValue("@email", email);
+
+                NewCartCommand.ExecuteNonQuery();
+
+                oConn.Close();
+            }
         }
     }
 }

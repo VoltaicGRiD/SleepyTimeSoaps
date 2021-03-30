@@ -1,0 +1,11 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "SleepyTimeSoapsREST"
+  },
+  "host": "localhost:44356",
+  "schemes": [ "https" ],
+  "paths": {},
+  "definitions": {}
+}

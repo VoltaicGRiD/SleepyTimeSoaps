@@ -1,0 +1,734 @@
+﻿body {
+    font-family: "Open Sans", sans-serif;
+}
+
+h1, h2, h3 {
+    font-family: "Lobster", cursive;
+}
+
+h2 {
+    color: #a363ec;
+    ;
+}
+
+header h2 {
+    color: #CEC8FF;
+}
+
+.site-footer {
+    background-image: linear-gradient(#CEC8FF, white);
+    padding: 20px 0;
+}
+
+.jumbotron {
+    margin: 0;
+    padding-left: 40px;
+    padding-right: 40px;
+    background-color: #CEC8FF;
+    color: #a363ec;
+}
+
+.row-content {
+    padding: 50px 0;
+    border-bottom: 1px ridge;
+    min-height: 200px;
+}
+
+.navbar {
+    background-color: #a363ec;
+    margin-bottom: 50px;
+}
+
+.carousel-caption {
+    background-color: rgba(230, 226, 28, 0.5);
+}
+
+.carousel {
+    border: solid #a363ec;
+    ;
+}
+
+#carouselButton {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+#reserveModal .modal-header {
+    background-color: #17A2B8;
+}
+
+#reserveModal h3 {
+    color: white;
+}
+
+#loginModal .modal-header {
+    background-color: #901CAD;
+}
+
+#loginModal h3 {
+    color: white;
+}
+
+.btn-social-icon {
+    color: #a363ec;
+}
+
+.product-tag-img-header {
+    object-fit: scale-down;
+    width: 40px;
+    height: 40px;
+}
+
+.product-img {
+    padding-right: 9px;
+    object-fit: cover;
+}
+
+.product-card-header {
+    font-size: 14pt;
+    font-weight: 600;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 15px;
+}
+
+.product-card {
+    min-height: 420px;
+    max-height: 420px;
+}
+
+.product-scent {
+    text-align: right;
+    position: absolute;
+    float: right;
+    font-weight: 600;
+    font-size: 11pt;
+    bottom: -3px;
+    right: 10px;
+}
+
+.product-description {
+    font-size: 15pt;
+}
+
+.productpage-img {
+    max-width: 100%;
+    min-width: 100%;
+    max-height: 350px;
+    min-height: 350px;
+    border-radius: 15pt;
+    object-fit: fill;
+    background-image: url('../../Content/Images/Spinner.gif');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wrapped-buttons {
+    width: 48.5%;
+}
+
+.quantity-button {
+    margin-left: 2.2%;
+    width: 48.5%
+}
+
+.wishlist-button {
+    margin-left: 2.2%;
+}
+
+.add-to-button {
+    width: 48.5%;
+}
+
+.product-info-button {
+    width: 32%;
+    height: 50px;
+}
+
+.product-collapse-button {
+    font-style: unset;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.product-info-col:before {
+    content: "\a";
+    white-space: pre;
+}
+
+.carousel {
+    border: none;
+}
+
+.product-tag {
+    object-fit: scale-down;
+    width: 40px;
+    height: 40px;
+}
+
+.BagButton {
+    display: block;
+    position: absolute;
+    left: 95px;
+    bottom: 10px
+}
+
+.product-img {
+    height: 170px;
+}
+
+.cart-table {
+    display: block;
+}
+
+.cart-table-sm {
+    display: none;
+    border-radius: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.update-quantity-button {
+    font-size: 12pt;
+    margin-top: -5px;
+}
+
+.reviews {
+    color: white;
+    margin: 5px;
+    padding-top: 10px;
+    border-radius: 15px;
+}
+
+.reviewstar {
+    position: relative;
+    top: -4px;
+}
+
+.averageratingpp {
+    position: relative;
+    right: 0;
+}
+
+.categoryContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-left: 20px;
+    width: 100%;
+}
+
+.categoryButton {
+    margin-right: 50px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    width: 200px;
+}
+
+    .categoryButton:hover {
+        text-decoration: none;
+        color: #a363ec;
+    }
+
+.categoryLine {
+    margin-top: -10px;
+    border-top: 4px solid white;
+    width: 100%;
+}
+
+.categoryButtonSelected {
+    margin-right: 50px;
+    background-color: transparent;
+    border: none;
+    color: #a363ec;
+    width: 200px;
+}
+
+    .categoryButtonSelected:hover {
+        text-decoration: none;
+        color: white;
+    }
+
+.categoryLineSelected {
+    margin-top: -10px;
+    border-top: 4px solid #a363ec;
+    text-shadow: 0 0 2px gold;
+    width: 100%;
+}
+
+.dropdown-menu {
+    background-color: #a363ec;
+}
+
+.dropdown-item {
+    font-size: 14pt;
+    color: white;
+}
+
+@media screen and (max-width: 420px) {
+    .BagButton {
+        display: none;
+    }
+
+    .product-card-body {
+        font-size: 8pt;
+        height: 210px;
+        margin: -10px;
+    }
+
+    .product-tag-header:before {
+        content: "\a\a";
+        white-space: pre;
+    }
+
+    .product-card-header {
+        font-size: 12pt;
+        font-weight: 600;
+    }
+
+    .product-img {
+        height: 85px !important;
+    }
+
+    .product-scent {
+        font-size: 10pt;
+        position: absolute;
+        right: 10px;
+        font-weight: 600;
+        bottom: 40px;
+    }
+
+    .product-tag {
+        object-fit: scale-down;
+        width: 30px;
+        height: 30px;
+    }
+
+    .product-card {
+        margin-left: -8px;
+        margin-right: -8px;
+        min-height: 350px;
+        max-height: 350px;
+    }
+
+    .product-description {
+        font-size: 12pt;
+    }
+
+    .productpage-img {
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 180px;
+        min-height: 180px;
+        border-radius: 15pt;
+        object-fit: fill;
+        background-image: url('../../Content/Images/Spinner.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .wrapped-buttons {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .quantity-button {
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .add-to-button {
+        width: 100%;
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .product-info-button {
+        width: 100%;
+        margin-bottom: 5px;
+        margin-left: 0px !important;
+    }
+}
+
+@media screen and (min-width: 370px) and (max-width: 419px) {
+    .productpage-img {
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 220px;
+        min-height: 220px;
+        border-radius: 15pt;
+        object-fit: fill;
+        background-image: url('../../Content/Images/Spinner.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+}
+
+
+
+
+@media screen and (min-width: 420px) and (max-width: 500px) {
+    .BagButton {
+        display: none;
+    }
+
+    .product-card-body {
+        font-size: 8.5pt;
+        height: 210px;
+        margin: -10px;
+    }
+
+    .product-tag-header:before {
+        content: "\a\a";
+        white-space: pre;
+    }
+
+    .product-card-header {
+        font-size: 11pt;
+        font-weight: 600;
+    }
+
+    .product-img {
+        height: 120px !important;
+    }
+
+    .product-scent {
+        font-size: 10pt;
+        position: absolute;
+        right: 10px;
+        font-weight: 600;
+        bottom: 40px;
+    }
+
+    .product-tag {
+        object-fit: scale-down;
+        width: 30px;
+        height: 30px;
+    }
+
+    .product-card {
+        margin-left: -8px;
+        margin-right: -8px;
+        min-height: 350px;
+        max-height: 350px;
+    }
+
+    .product-description {
+        font-size: 12pt;
+    }
+
+    .productpage-img {
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 250px;
+        min-height: 250px;
+        border-radius: 15pt;
+        object-fit: fill;
+        background-image: url('../../Content/Images/Spinner.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .wrapped-buttons {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .quantity-button {
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .add-to-button {
+        width: 100%;
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .product-info-button {
+        width: 100%;
+        margin-bottom: 5px;
+        margin-left: 0px !important;
+    }
+}
+
+@media screen and (min-width: 790px) and (max-width: 1800px) {
+    .update-quantity-button {
+        margin-top: 5px;
+    }
+}
+
+@media screen and (min-width: 501px) and (max-width: 570px) {
+    .BagButton {
+        display: block;
+        position: relative;
+        right: 0px;
+    }
+
+    .product-card-body {
+        font-size: 11pt;
+        height: 210px;
+        margin: -10px;
+    }
+
+    .product-tag-header:before {
+        content: "\a\a";
+        white-space: pre;
+    }
+
+    .product-card-header {
+        font-size: 12pt;
+        font-weight: 600;
+    }
+
+    .product-img {
+        height: 145px !important;
+    }
+
+    .product-scent {
+        font-size: 11pt;
+        position: absolute;
+        right: 10px;
+        font-weight: 600;
+        bottom: 40px;
+    }
+
+    .product-tag {
+        object-fit: scale-down;
+        width: 35px;
+        height: 35px;
+    }
+
+    .product-card {
+        margin-left: -8px;
+        margin-right: -8px;
+        min-height: 400px;
+        max-height: 350px;
+    }
+
+    .product-description {
+        font-size: 12pt;
+    }
+
+    .productpage-img {
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 265px;
+        min-height: 265px;
+        border-radius: 15pt;
+        object-fit: fill;
+        background-image: url('../../Content/Images/Spinner.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .wrapped-buttons {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .quantity-button {
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .add-to-button {
+        width: 100%;
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .product-info-button {
+        width: 100%;
+        margin-bottom: 5px;
+        margin-left: 0px !important;
+    }
+}
+
+@media screen and (min-width: 200px) and (max-width: 790px) {
+    .cart-table {
+        display: none;
+    }
+
+    .cart-table-sm {
+        display: block;
+        color: white;
+    }
+
+        .cart-table-sm br {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+}
+
+@media screen and (min-width: 770px) and (max-width: 1000px) {
+    .productpage-img {
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 240px;
+        min-height: 240px;
+        border-radius: 15pt;
+        object-fit: fill;
+        background-image: url('../../Content/Images/Spinner.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+}
+
+@media screen and (min-width: 571px) and (max-width: 1200px) {
+    .BagButton {
+        display: block;
+        position: relative;
+        right: 0px;
+    }
+
+    .product-card-body {
+        font-size: 11pt;
+        height: 210px;
+        margin: -10px;
+    }
+
+    .product-tag-header:before {
+        content: "\a\a";
+        white-space: pre;
+    }
+
+    .product-card-header {
+        font-size: 12pt;
+        font-weight: 600;
+    }
+
+    .product-img {
+        height: 145px !important;
+    }
+
+    .product-scent {
+        font-size: 11pt;
+        position: absolute;
+        right: 10px;
+        font-weight: 600;
+        bottom: 40px;
+    }
+
+    .product-tag {
+        object-fit: scale-down;
+        width: 35px;
+        height: 35px;
+    }
+
+    .product-card {
+        margin-left: -8px;
+        margin-right: -8px;
+        min-height: 400px;
+        max-height: 350px;
+    }
+
+    .product-description {
+        font-size: 12pt;
+    }
+
+    .wrapped-buttons {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .quantity-button {
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .add-to-button {
+        width: 100%;
+        margin-left: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .product-info-button {
+        width: 100%;
+        margin-bottom: 5px;
+        margin-left: 0px !important;
+    }
+}
+
+@media screen and (min-width: 1201px) and (max-width: 1900px) {
+    .BagButton {
+        display: block;
+        position: relative;
+        right: 0px;
+    }
+
+    .product-card-body {
+        font-size: 11pt;
+        height: 210px;
+        margin: -10px;
+    }
+
+    .product-tag-header:before {
+        content: "\a\a";
+        white-space: pre;
+    }
+
+    .product-card-header {
+        font-size: 11pt;
+        font-weight: 600;
+    }
+
+    .product-img {
+        height: 145px !important;
+    }
+
+    .product-scent {
+        font-size: 11pt;
+        position: absolute;
+        right: 10px;
+        font-weight: 600;
+        bottom: 40px;
+    }
+
+    .product-tag {
+        object-fit: scale-down;
+        width: 35px;
+        height: 35px;
+    }
+
+    .product-card {
+        margin-left: -8px;
+        margin-right: -8px;
+        min-height: 400px;
+        max-height: 350px;
+    }
+
+    .product-description {
+        font-size: 12pt;
+    }
+
+    .productpage-img {
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 320px;
+        min-height: 320px;
+        border-radius: 15pt;
+        object-fit: fill;
+        background-image: url('../../Content/Images/Spinner.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .product-info-button {
+        display: inline-block;
+    }
+}

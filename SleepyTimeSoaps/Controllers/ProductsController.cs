@@ -23,12 +23,16 @@ namespace SleepyTimeSoaps.Controllers
                 case "c=0":
                     Response.Write("<script> alert ('You have no items in your bag, please add some items before going to review it.') </script>");
                     break;
+                case "c=1":
+                    ViewBag.Response = "Successfully added to your bag.";
+                    break;
                 default:
                     break;
             }
 
             string Tag = string.Empty;
             string SearchText = string.Empty;
+            string Category = string.Empty;
 
             if (id.StartsWith("tag="))
             {
@@ -37,6 +41,10 @@ namespace SleepyTimeSoaps.Controllers
             else if (id.StartsWith("search="))
             {
                 SearchText = id.Split('=')[1];
+            }
+            else if (id.StartsWith("category="))
+            {
+                Category = id.Split('=')[1];
             }
 
             ProductsModel returnedModel = null;
@@ -51,6 +59,28 @@ namespace SleepyTimeSoaps.Controllers
                 //returnedModel = Search(SearchText);
                 ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
             }
+            else if (!string.IsNullOrWhiteSpace(Category))
+            {
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+
+                switch (Category)
+                {
+                    case "soap":
+                        returnedModel = GatherProductsByCategory("Specialty Soap");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.soap;
+                        break;
+                    case "waxmelts":
+                        returnedModel = GatherProductsByCategory("Wax Melts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.waxmelts;
+                        break;
+                    case "bathsalts":
+                        returnedModel = GatherProductsByCategory("Bath Salts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.bathsalts;
+                        break;
+                    default:
+                        break;
+                }
+            }
             else if (id == "Recommended")
             {
                 returnedModel = GatherRecommendedProducts();
@@ -60,9 +90,331 @@ namespace SleepyTimeSoaps.Controllers
             {
                 ViewBag.Message = "All available products";
                 returnedModel = GatherAllProducts();
-            }          
+            }
 
             return View(returnedModel);
+        }
+
+        public ActionResult ShopForThem(string id = "")
+        {
+            switch (id)
+            {
+                case "w=0":
+                    Response.Write("<script> alert ('You have no items in your wishlist, please add some items before going to review it.') </script>");
+                    break;
+                case "c=0":
+                    Response.Write("<script> alert ('You have no items in your bag, please add some items before going to review it.') </script>");
+                    break;
+                case "c=1":
+                    ViewBag.Response = "Successfully added to your bag.";
+                    break;
+                default:
+                    break;
+            }
+
+            string Tag = string.Empty;
+            string SearchText = string.Empty;
+            string Category = string.Empty;
+
+            if (id.StartsWith("tag="))
+            {
+                Tag = id.Split('=')[1];
+            }
+            else if (id.StartsWith("search="))
+            {
+                SearchText = id.Split('=')[1];
+            }
+            else if (id.StartsWith("category="))
+            {
+                Category = id.Split('=')[1];
+            }
+
+            ProductsModel returnedModel = null;
+
+            if (!string.IsNullOrWhiteSpace(Tag))
+            {
+                returnedModel = GatherProductsByTag(Tag);
+                ViewBag.Message = $"Gathered using tag: <b><i>{Tag}</b></i>";
+            }
+            else if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                //returnedModel = Search(SearchText);
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+            }
+            else if (!string.IsNullOrWhiteSpace(Category))
+            {
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+
+                switch (Category)
+                {
+                    case "soap":
+                        returnedModel = GatherProductsByCategory("Specialty Soap");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.soap;
+                        break;
+                    case "waxmelts":
+                        returnedModel = GatherProductsByCategory("Wax Melts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.waxmelts;
+                        break;
+                    case "bathsalts":
+                        returnedModel = GatherProductsByCategory("Bath Salts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.bathsalts;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (id == "Recommended")
+            {
+                returnedModel = GatherRecommendedProducts();
+                ViewBag.Message = "These are our recommended products";
+            }
+            else
+            {
+                ViewBag.Message = "All available products";
+                returnedModel = GatherAllProducts();
+            }
+
+            return View(returnedModel);
+        }
+
+        private ActionResult ShopForHer(string id = "")
+        {
+            switch (id)
+            {
+                case "w=0":
+                    Response.Write("<script> alert ('You have no items in your wishlist, please add some items before going to review it.') </script>");
+                    break;
+                case "c=0":
+                    Response.Write("<script> alert ('You have no items in your bag, please add some items before going to review it.') </script>");
+                    break;
+                case "c=1":
+                    ViewBag.Response = "Successfully added to your bag.";
+                    break;
+                default:
+                    break;
+            }
+
+            string Tag = string.Empty;
+            string SearchText = string.Empty;
+            string Category = string.Empty;
+
+            if (id.StartsWith("tag="))
+            {
+                Tag = id.Split('=')[1];
+            }
+            else if (id.StartsWith("search="))
+            {
+                SearchText = id.Split('=')[1];
+            }
+            else if (id.StartsWith("category="))
+            {
+                Category = id.Split('=')[1];
+            }
+
+            ProductsModel returnedModel = null;
+
+            if (!string.IsNullOrWhiteSpace(Tag))
+            {
+                returnedModel = GatherProductsByTag(Tag);
+                ViewBag.Message = $"Gathered using tag: <b><i>{Tag}</b></i>";
+            }
+            else if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                //returnedModel = Search(SearchText);
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+            }
+            else if (!string.IsNullOrWhiteSpace(Category))
+            {
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+
+                switch (Category)
+                {
+                    case "soap":
+                        returnedModel = GatherProductsByCategory("Specialty Soap");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.soap;
+                        break;
+                    case "waxmelts":
+                        returnedModel = GatherProductsByCategory("Wax Melts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.waxmelts;
+                        break;
+                    case "bathsalts":
+                        returnedModel = GatherProductsByCategory("Bath Salts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.bathsalts;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (id == "Recommended")
+            {
+                returnedModel = GatherRecommendedProducts();
+                ViewBag.Message = "These are our recommended products";
+            }
+            else
+            {
+                ViewBag.Message = "All available products";
+                returnedModel = GatherAllProductsForHer();
+            }
+
+            return View("Index", returnedModel);
+        }
+
+        private ActionResult ShopForHim(string id = "")
+        {
+            switch (id)
+            {
+                case "w=0":
+                    Response.Write("<script> alert ('You have no items in your wishlist, please add some items before going to review it.') </script>");
+                    break;
+                case "c=0":
+                    Response.Write("<script> alert ('You have no items in your bag, please add some items before going to review it.') </script>");
+                    break;
+                case "c=1":
+                    ViewBag.Response = "Successfully added to your bag.";
+                    break;
+                default:
+                    break;
+            }
+
+            string Tag = string.Empty;
+            string SearchText = string.Empty;
+            string Category = string.Empty;
+
+            if (id.StartsWith("tag="))
+            {
+                Tag = id.Split('=')[1];
+            }
+            else if (id.StartsWith("search="))
+            {
+                SearchText = id.Split('=')[1];
+            }
+            else if (id.StartsWith("category="))
+            {
+                Category = id.Split('=')[1];
+            }
+
+            ProductsModel returnedModel = null;
+
+            if (!string.IsNullOrWhiteSpace(Tag))
+            {
+                returnedModel = GatherProductsByTag(Tag);
+                ViewBag.Message = $"Gathered using tag: <b><i>{Tag}</b></i>";
+            }
+            else if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                //returnedModel = Search(SearchText);
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+            }
+            else if (!string.IsNullOrWhiteSpace(Category))
+            {
+                ViewBag.Message = $"Products like <b><i>{SearchText}</i></b>";
+
+                switch (Category)
+                {
+                    case "soap":
+                        returnedModel = GatherProductsByCategory("Specialty Soap");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.soap;
+                        break;
+                    case "waxmelts":
+                        returnedModel = GatherProductsByCategory("Wax Melts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.waxmelts;
+                        break;
+                    case "bathsalts":
+                        returnedModel = GatherProductsByCategory("Bath Salts");
+                        returnedModel.SelectedCategory = ProductsModel.Categories.bathsalts;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (id == "Recommended")
+            {
+                returnedModel = GatherRecommendedProducts();
+                ViewBag.Message = "These are our recommended products";
+            }
+            else
+            {
+                ViewBag.Message = "All available products";
+                returnedModel = GatherAllProductsForHim();
+            }
+
+            return View("Index", returnedModel);
+        }
+
+        private ActionResult RenderProduct(int id)
+        {
+            Product newProduct = new Product();
+
+            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            oConn.Open();
+
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductID=@id";
+
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+            oCommand.Parameters.AddWithValue("@id", id);
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                newProduct.ProductID = oReader.GetInt32(0);
+                newProduct.ProductName = oReader.GetString(1);
+                newProduct.ProductScentProfile = oReader.GetString(2);
+                newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                newProduct.ProductDescription = oReader.GetString(5);
+                newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+            }
+
+            oConn.Close();
+
+            return View("ProductPartial", newProduct);
+        }
+
+        private ProductsModel GatherProductsByCategory(string Category)
+        {
+            ProductsModel Model = new ProductsModel();
+
+            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            oConn.Open();
+
+#if DEBUG
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductType=@category";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+#if (!DEBUG)
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductType=@category";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+
+            oCommand.Parameters.AddWithValue("@category", Category);
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Product newProduct = new Product();
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductScentProfile = oReader.GetString(2);
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                    newProduct.ProductDescription = oReader.GetString(5);
+                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+
+                    Model.Products.Add(newProduct);
+                }
+            }
+
+            oConn.Close();
+
+            return Model;
         }
 
         private ProductsModel GatherRecommendedProducts()
@@ -73,11 +425,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductIsRecommended=1";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsRecommended=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductIsReleased=1 AND ProductIsRecommended=1";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductIsRecommended=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -94,6 +446,9 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductDescription = oReader.GetString(5);
                     newProduct.ProductIsRecommended = oReader.GetBoolean(6);
                     newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
 
                     Model.Products.Add(newProduct);
                 }
@@ -112,11 +467,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductTags LIKE '%{tag}%'";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductTags LIKE '%{tag}%'";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductIsReleased=1 AND ProductTags LIKE '%{tag}%'";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductTags LIKE '%{tag}%'";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -133,8 +488,9 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductDescription = oReader.GetString(5);
                     newProduct.ProductIsRecommended = oReader.GetBoolean(6);
                     newProduct.ProductIsClearance = oReader.GetBoolean(7);
-                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
-                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
 
                     Model.Products.Add(newProduct);
                 }
@@ -145,7 +501,7 @@ namespace SleepyTimeSoaps.Controllers
             return Model;
         }
 
-        private ProductsModel GatherAllProducts()
+        public ActionResult Clearance()
         {
             ProductsModel Model = new ProductsModel();
 
@@ -153,11 +509,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsClearance=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductIsReleased=1";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductIsClearance=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -174,6 +530,136 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductDescription = oReader.GetString(5);
                     newProduct.ProductIsRecommended = oReader.GetBoolean(6);
                     newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+
+                    Model.Products.Add(newProduct);
+                }
+            }
+
+            oConn.Close();
+
+            ViewBag.Message = "Clearance";
+            return View("Index", Model);
+        }
+
+        private ProductsModel GatherAllProducts()
+        {
+            ProductsModel Model = new ProductsModel();
+
+            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            oConn.Open();
+
+#if DEBUG
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+#if (!DEBUG)
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Product newProduct = new Product();
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductScentProfile = oReader.GetString(2);
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                    newProduct.ProductDescription = oReader.GetString(5);
+                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+
+                    Model.Products.Add(newProduct);
+                }
+            }
+
+            oConn.Close();
+
+            return Model;
+        }
+
+        private ProductsModel GatherAllProductsForHim()
+        {
+            ProductsModel Model = new ProductsModel();
+
+            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            oConn.Open();
+
+#if DEBUG
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductGender=2 OR ProductGender=4";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+#if (!DEBUG)
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND (ProductGender=2 OR ProductGender=4)";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Product newProduct = new Product();
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductScentProfile = oReader.GetString(2);
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                    newProduct.ProductDescription = oReader.GetString(5);
+                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+
+                    Model.Products.Add(newProduct);
+                }
+            }
+
+            oConn.Close();
+
+            return Model;
+        }
+
+        private ProductsModel GatherAllProductsForHer()
+        {
+            ProductsModel Model = new ProductsModel();
+
+            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            oConn.Open();
+
+#if DEBUG
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductGender=1 OR ProductGender=4";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+#if (!DEBUG)
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND (ProductGender=1 OR ProductGender=4)";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Product newProduct = new Product();
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductScentProfile = oReader.GetString(2);
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                    newProduct.ProductDescription = oReader.GetString(5);
+                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
 
                     Model.Products.Add(newProduct);
                 }
@@ -192,11 +678,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%'";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%'";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance FROM Products WHERE ProductIsReleased=1 AND (ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%')";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND (ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%')";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -213,6 +699,9 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductDescription = oReader.GetString(5);
                     newProduct.ProductIsRecommended = oReader.GetBoolean(6);
                     newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
 
                     Model.Products.Add(newProduct);
                 }
@@ -227,7 +716,7 @@ namespace SleepyTimeSoaps.Controllers
         public ActionResult ProductPage(int id, string response = "null")
         {
             if (response == "cs")
-                Response.Write("<script> alert ('Item added to your bag!') </script>");
+                Response.Write("<script> AddToCartSuccess(); </script>");
             else if (response == "ws")
                 Response.Write("<script> alert ('Item added to your wishlist!') </script>");
 
@@ -261,6 +750,7 @@ namespace SleepyTimeSoaps.Controllers
                     selectedProduct.ProductAttributeIDs = oReader.IsDBNull(13) ? "" : oReader.GetString(13);
                     selectedProduct.ProductScentProfile = oReader.GetString(14);
                     selectedProduct.ProductStock = oReader.GetInt32(15);
+                    selectedProduct.ReviewXMLRaw = oReader.IsDBNull(20) ? string.Empty : oReader.GetString(20);
                 }
             }
 

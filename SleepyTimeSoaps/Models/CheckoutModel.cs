@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 
 namespace SleepyTimeSoaps.Models
@@ -16,6 +17,25 @@ namespace SleepyTimeSoaps.Models
         public string ShippingNote { get; set; }
 
         public int OrderID { get; set; }
+
+        public string Cart { get; set; }
+
+        public string CustomerID { get; set; }
+
+        public string Customer { get; set; }
+
+        public enum _status
+        {
+            Refunded = -2,
+            Cancelled = -1,
+            Received = 0,
+            Acknowledged = 1,
+            Packed = 2,
+            Shipped = 3
+        }
+        public _status OrderStatus { get; set; }
+
+        public string OrderNotes { get; set; }
 
         // firstname lastname
         // address
@@ -50,20 +70,19 @@ namespace SleepyTimeSoaps.Models
         public string state { get { return string.IsNullOrWhiteSpace(ShippingInfo) ? "" : GetShippingLines()[3].Split(',')[1].Trim().Split(' ')[0].Trim(); } }
         public string zip { get { return string.IsNullOrWhiteSpace(ShippingInfo) ? "" : GetShippingLines()[3].Split(',')[1].Trim().Split(' ')[1].Trim(); } }
 
-
-        public string cardname { get; set; }
-        public string cardnumber { get; set; }
-        public string expmonth { get; set; }
-        public string expyear { get; set; }
-        public string cvv { get; set; }
-
         public float ProductSubTotal()
         {
             float Total = 0;
 
             foreach (Product p in Products)
             {
-                Total += p.ProductPrice;
+                Total += p.FinalProductPrice;
+            }
+
+            if (DiscountApplied)
+            {
+                float Percentage = (float)DiscountPercentage / 100;
+                Total -= (Total * Percentage);
             }
 
             return Total;
@@ -88,8 +107,46 @@ namespace SleepyTimeSoaps.Models
             }
         }
 
-
         public float CartTotal { get { return ProductSubTotal() + ShippingSubtotal(); } }
 
+        public float OrderTotal { get; set; }
+
+        //public string ProcessedCart 
+        //{
+        //    get
+        //    {
+        //        if (!string.IsNullOrWhiteSpace(Cart))
+        //        {
+        //            foreach (string s in Cart.Split(';'))
+        //            {
+
+        //                Product newProduct = new Product();
+
+        //                List<string> innerData = new List<string>();
+        //                innerData = s.Replace('}', '\0').Replace('{', '\0').Trim().Split(',').ToList();
+
+
+        //                newProduct.ProductID = int.Parse(innerData[0].Split('=')[1].Trim());
+        //                newProduct.Quantity = int.Parse(innerData[1].Split('=')[1].Trim());
+        //                newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
+
+        //                if (innerData.Count > 3)
+        //                {
+        //                    for (int i = 3; i < innerData.Count; i++)
+        //                    {
+        //                        newProduct.SelectedAttributes.Add(innerData[i]);
+        //                    }
+        //                }
+
+        //                Products.Add(newProduct);
+
+        //            }
+        //        }
+        //    }
+        //}
+
+        public bool DiscountApplied { get; set; }
+        public string DiscountName { get; set; }
+        public int DiscountPercentage { get; set; }
     }
 }

@@ -14,5 +14,7 @@ namespace SleepyTimeSoaps.Models
         public string PostedReadable { get { return Posted.ToString("MMMM dd, yyyy"); } }
         public string ButtonText { get; set; }
         public string ButtonHref { get; set; }
+        public int RecommendedProductID { get; set; }
+        public Product RecommendedProduct { get; set; }
     }
 }
