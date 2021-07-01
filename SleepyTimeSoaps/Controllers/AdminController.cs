@@ -1,15 +1,15 @@
-﻿using SleepyTimeSoaps.Models;
+﻿using SendGrid;
+using SendGrid.Helpers.Mail;
+using SleepyTimeSoaps.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using SendGrid.Helpers.Mail;
-using SendGrid;
-using System.Threading.Tasks;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace SleepyTimeSoaps.Controllers
 {
@@ -71,7 +71,7 @@ namespace SleepyTimeSoaps.Controllers
                     newOrder.CustomerID = oReader.GetGuid(1).ToString();
                     newOrder.Cart = oReader.GetString(2);
                     newOrder.ShippingInfo = oReader.GetString(3);
-                    newOrder.DiscountPercentage = oReader.GetInt32(4);
+                    newOrder.DiscountPercentage = oReader.IsDBNull(4) ? 0 : oReader.GetInt32(4);
                     newOrder.OrderStatus = (CheckoutModel._status)Enum.Parse(typeof(CheckoutModel._status), oReader.GetString(5));
 
                     Model._Orders.Add(newOrder);
@@ -352,7 +352,7 @@ namespace SleepyTimeSoaps.Controllers
             var subject = "Order status updated.";
             var to = new EmailAddress(CustomerEmail);
             var plainTextContent = "Your recent order has had it's status updated to 'Packed'. Your order will be shipped soon, and an email containing a tracking number will be provided. You can view your order at this address: " + link;
-            var htmlContent = sb.ToString();  ;
+            var htmlContent = sb.ToString(); ;
             var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
             var response = Task.Run(async () => await client.SendEmailAsync(msg)).Result;
 
@@ -483,6 +483,111 @@ namespace SleepyTimeSoaps.Controllers
             Session["Response"] = "Successfully updated order status to 'Shipped'.";
 
             return RedirectToAction("Orders");
+        }
+
+        public ActionResult Products()
+        {
+            ProductsModel oModel = new ProductsModel();
+            List<Product> Products = new List<Product>();
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            string CommandText = "SELECT ProductID,ProductName,ProductDescription,ProductIngredients,ProductType,ProductCategory,ProductTags,ProductPrice FROM Products";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.Read() && oReader.HasRows)
+                {
+                    Product newProduct = new Product();
+
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductDescription = oReader.GetString(2);
+                    newProduct.ProductIngredients = oReader.GetString(3);
+                    newProduct.ProductType = oReader.GetString(4);
+                    newProduct.ProductCategory = oReader.GetString(5);
+                    newProduct._ProductTags = oReader.GetString(6).Split(',').ToList();
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(7).ToString());
+
+                    Products.Add(newProduct);
+                }
+            }
+
+            oConn.Close();
+
+            oModel._Products = Products;
+
+            return View(oModel);
+        }
+
+        public ActionResult DownloadImages(string id)
+        {
+            string PrimaryImage = string.Empty;
+            string ProductImages = string.Empty;
+            List<string> Images = new List<string>();
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            string CommandText = "SELECT ProductPrimaryImageUrl, ProductImages FROM Products WHERE ProductID=@id";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+            oCommand.Parameters.AddWithValue("@id", id);
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                PrimaryImage = oReader.GetString(0);
+                ProductImages = oReader.GetString(1);
+            }
+
+            Images = ProductImages.Split(',').ToList();
+
+            oConn.Close();
+
+            using (WebClient client = new WebClient())
+            {
+                //
+            }
+
+            return null;
+        }
+
+        public ActionResult AddBlogPost(FormCollection input)
+        {
+            string PostTitle = input["BlogTitle"];
+            string PostText = input["BlogText"];
+            string PostImage = input["BlogImageUrl"];
+            string PostButton = input["BlogButtonText"];
+            string PostButtonUrl = input["BlogButtonText"];
+
+            try
+            {
+                SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+                oConn.Open();
+
+                string CommandText = "INSERT INTO BlogPosts (BlogTitle, BlogText, BlogImageUrl, BlogPosted, BlogButtonText, BlogButtonHref) VALUES (@title, @text, @image, @posted, @buttontext, @buttonhref)";
+                SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+
+                oCommand.Parameters.AddWithValue("@title", PostTitle);
+                oCommand.Parameters.AddWithValue("@text", PostText);
+                oCommand.Parameters.AddWithValue("@image", PostImage);
+                oCommand.Parameters.AddWithValue("@posted", DateTime.Today.ToString());
+                oCommand.Parameters.AddWithValue("@buttontext", PostButton);
+                oCommand.Parameters.AddWithValue("@buttonhref", PostButtonUrl);
+
+                oCommand.ExecuteNonQuery();
+
+                oConn.Close();
+
+                ViewBag["Response"] = "Success, blog post added.";
+                return View("Dashboard");
+            }
+            catch (Exception exc)
+            {
+                ViewBag["Response"] = "ERR: " + exc.Message;
+                return View("Dashboard");
+            }
         }
     }
 }

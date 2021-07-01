@@ -1,15 +1,12 @@
-﻿using System;
+﻿using SleepyTimeSoaps.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Security.Claims;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using SleepyTimeSoaps.Models;
-using SleepyTimeSoaps.CustomAuthentication;
-using System.Security.Principal;
-using System.Text;
 
 namespace SleepyTimeSoaps.Controllers
 {
@@ -130,7 +127,14 @@ namespace SleepyTimeSoaps.Controllers
             {
                 string CurrentCart = string.Empty;
                 try { CurrentCart = Session["Cart"].ToString(); } catch (NullReferenceException nrexc) { }
-                string QuantityString = formCollection["quantity"].ToString();
+                string QuantityString = string.Empty;
+                try
+                {
+                    QuantityString = formCollection["quantity"].ToString();
+                } catch (NullReferenceException NRE)
+                {
+                    QuantityString = "1";
+                }
                 string NewCart = string.Empty;
 
                 if (string.IsNullOrWhiteSpace(CurrentCart))

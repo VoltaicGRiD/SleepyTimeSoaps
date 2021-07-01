@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
+﻿using System.Collections.Generic;
 
 namespace SleepyTimeSoaps.Models
 {
@@ -47,20 +43,22 @@ namespace SleepyTimeSoaps.Models
             if (!string.IsNullOrWhiteSpace(ShippingInfo))
             {
                 List<string> ShippingLines = new List<string>();
-                
+
                 foreach (string s in ShippingInfo.Split('\n'))
                 {
                     ShippingLines.Add(s);
                 }
-                
+
                 return ShippingLines;
             }
-            
+
             else
             {
                 return null;
             }
         }
+
+        public bool IsMarketPurchase { get; set; } = false;
 
         public string firstname { get { return string.IsNullOrWhiteSpace(ShippingInfo) ? "" : GetShippingLines()[0].Split(' ')[0].Trim(); } }
         public string lastname { get { return string.IsNullOrWhiteSpace(ShippingInfo) ? "" : GetShippingLines()[0].Split(' ')[1].Trim(); } }
@@ -93,6 +91,11 @@ namespace SleepyTimeSoaps.Models
             if (state == "CO")
             {
                 ShippingNote = "Free Colorado shipping";
+                return 0;
+            }
+            else if (IsMarketPurchase)
+            {
+                ShippingNote = "At-market purchase";
                 return 0;
             }
             else if (ProductSubTotal() >= 30f)

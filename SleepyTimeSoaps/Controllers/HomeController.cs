@@ -1,9 +1,5 @@
 ﻿using SleepyTimeSoaps.Models;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace SleepyTimeSoaps.Controllers
@@ -82,6 +78,11 @@ namespace SleepyTimeSoaps.Controllers
         {
             ViewBag.Message = "Your contact page.";
 
+            return View();
+        }
+
+        public ActionResult AnthroExpo()
+        {
             return View();
         }
     }

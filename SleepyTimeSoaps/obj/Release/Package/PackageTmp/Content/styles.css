@@ -6,6 +6,11 @@ h1, h2, h3 {
     font-family: "Lobster", cursive;
 }
 
+@font-face {
+    font-family: 'Forturn-Custom';
+    src: url('Fonts/Forturn-9Y94y.ttf') format('truetype');
+}
+
 h2 {
     color: #a363ec;
     ;
@@ -110,6 +115,7 @@ header h2 {
 
 .product-description {
     font-size: 15pt;
+    white-space: pre-wrap;
 }
 
 .productpage-img {
@@ -209,6 +215,88 @@ header h2 {
     position: relative;
     right: 0;
 }
+
+.categoryContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-left: 20px;
+    width: 100%;
+}
+
+.categoryButton {
+    margin-right: 50px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    width: 200px;
+}
+
+    .categoryButton:hover {
+        text-decoration: none;
+        color: #a363ec;
+    }
+
+.categoryLine {
+    margin-top: -10px;
+    border-top: 4px solid white;
+    width: 100%;
+}
+
+.categoryButtonSelected {
+    margin-right: 50px;
+    background-color: transparent;
+    border: none;
+    color: #a363ec;
+    width: 200px;
+}
+
+    .categoryButtonSelected:hover {
+        text-decoration: none;
+        color: white;
+    }
+
+.categoryLineSelected {
+    margin-top: -10px;
+    border-top: 4px solid #a363ec;
+    text-shadow: 0 0 2px gold;
+    width: 100%;
+}
+
+.dropdown-menu {
+    background-color: #a363ec;
+}
+
+.dropdown-item {
+    font-size: 14pt;
+    color: white;
+}
+
+.custom-form-select {
+    border-radius: 4px;
+    height:38px;
+}
+
+.button-cash {
+    width: 100%;
+    min-height: 35px;
+    height: 40px;
+    text-align: center;
+    padding: 11px 24px;
+    margin-bottom: 18px; 
+    border: 0;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px 0 rgb(60 64 67 / 30%), 0 1px 3px 1px rgb(60 64 67 / 15%);
+    outline: 0;
+    cursor: pointer;
+    display: block;
+}
+
+.button-cash:hover {
+    text-decoration: none;
+}
+
 
 @media screen and (max-width: 420px) {
     .BagButton {

@@ -1,0 +1,36 @@
+﻿
+@{
+    ViewBag.Title = "Anthro Expo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-dark w-100" style="border-radius: 20px;">
+
+    <div class="bg-image hover-overlay ripple shadow-1-strong rounded m-4" style="padding-top: 20px; padding-bottom: 20px;"
+         data-mdb-ripple-color="light">
+
+        <h2 style="margin-left: 10px; color: white; margin-bottom: 20px; text-shadow: 4px 4px 4px #a363ec">OKC Anthro Expo!</h2>
+
+        <div class="text-white" style="font-size: 14pt;">
+            <p>
+                When I volunteered for the convention, I had signed up to be part of the Art Staff, and it was the best decision of my life. Doing some of the art for the convention, like announcement pieces in a cute chibi style that I had not really thought of doing before. Being a part of this convention, led me to making these bars and working with everyone to make this luxury pack. I have met a lot of awesome people and I will never forget them and the way they have made a positive impact in my life. This was alo the first time I had personally worked on an art team and I can say it was the best experience, most welcoming experience ever. This has shown me that I want to work in larger art teams and would love to volunteer to work with them again.
+            </p>
+            <br/>
+            <p>
+                I do want to say THANK YOU to the convention staff and team for making this  whole experience so fun and welcoming. I don't think I could have found a better opportunity to work with such awesome people.
+            </p>
+        </div>
+        <br/>
+        <div class="row">
+
+            @Html.Action("RenderProduct", "Products", new { id = 1053 })
+
+
+            @Html.Action("RenderProduct", "Products", new { id = 1054 })
+
+
+            @Html.Action("RenderProduct", "Products", new { id = 1055 })
+
+        </div>
+    </div>
+</div> 

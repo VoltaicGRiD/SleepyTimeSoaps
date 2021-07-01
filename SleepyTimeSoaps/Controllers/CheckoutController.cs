@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using SleepyTimeSoaps.Models;
 using Square;
-using Square.Models;
-using SleepyTimeSoaps.Models;
-using System.Net.Http;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
-using Square.Exceptions;
-using System.Diagnostics;
-using System.Net;
-using System.Data.SqlClient;
-using PayPal.Api;
-using System.Web.Security;
 using Square.Apis;
+using Square.Exceptions;
+using Square.Models;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+using System.Web.Security;
+using SendGrid;
+using SendGrid.Helpers;
+using SendGrid.Helpers.Mail;
+using System.Configuration;
+using System.Diagnostics;
 
 namespace SleepyTimeSoaps.Controllers
 {
@@ -663,119 +661,444 @@ namespace SleepyTimeSoaps.Controllers
             return View();
         }
 
-        public ActionResult PaypalCheckout()
+        public ActionResult NewMarketCheckout()
         {
-            //HttpCookie cartCookie = Request.Cookies["cartCookie"];
-            //if (cartCookie != null)
-            //{
-            //    string cartValues = cartCookie.Value;
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
 
-            //    var apiContext = new APIContext(AccessModel.PaypalAppAccessCode);
+            var user = Membership.GetUser(System.Web.HttpContext.Current.User.Identity.Name);
+            string email = string.Empty;
 
-            //    apiContext.Config = ConfigManager.Instance.GetProperties();
-            //    apiContext.Config["connectionTimeout"] = "1000";
+            if (user != null)
+                email = user.Email;
+            else
+                return RedirectToAction("Login", "Account");
 
-            //    if (apiContext.HTTPHeaders == null)
-            //    {
-            //        apiContext.HTTPHeaders = new Dictionary<string, string>();
-            //    }
+            string CommandText = $"SELECT CustomerID, CustomerCart, CustomerAddress, CustomerOrders, ActiveOrder FROM Customers WHERE CustomerEmail LIKE '%{email}%'";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 
-            //    SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
-            //    oConn.Open();
+            CustomerModel CurrentCustomer = new CustomerModel();
 
-            //    string CommandText = "SELECT ProductName,ProductPrice FROM Products WHERE ProductId=@id";
-            //    SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+            bool UserExists = false;
 
-            //    List<Item> items = new List<Item>();
-            //    foreach (string productid in cartValues.Split(','))
-            //    {
-            //        oCommand.Parameters.Clear();
-            //        oCommand.Parameters.AddWithValue("@id", productid);
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                if (oReader.HasRows)
+                {
+                    UserExists = true;
 
-            //        using (SqlDataReader oReader = oCommand.ExecuteReader())
-            //        {
-            //            while (oReader.HasRows && oReader.Read())
-            //            {
-            //                items.Add(new Item()
-            //                {
-            //                    name = oReader.GetString(0),
-            //                    currency = "USD",
-            //                    price = oReader.GetValue(1).ToString(),
-            //                    quantity = "1"
-            //                });
-            //            }
-            //        }
-            //    }
+                    while (oReader.Read())
+                    {
+                        CurrentCustomer.CustomerID = oReader.GetGuid(0).ToString();
+                        CurrentCustomer.CustomerCart = oReader.GetString(1);
+                        CurrentCustomer.CustomerAddress = oReader.IsDBNull(2) ? string.Empty : oReader.GetString(2);
+                        CurrentCustomer.CustomerOrders = oReader.IsDBNull(3) ? string.Empty : oReader.GetString(3);
+                        CurrentCustomer.ActiveOrder = oReader.IsDBNull(4) ? 0 : oReader.GetInt32(4);
+                    }
+                }
+            }
 
-            //    string payerId = Request.Params["PayerID"];
+            if (UserExists == false)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            //    //if (string.IsNullOrWhiteSpace(payerId))
-            //    //{
-            //    var ItemList = new ItemList()
-            //    {
-            //        items = items
-            //    };
+            if (string.IsNullOrWhiteSpace(CurrentCustomer.CustomerCart))
+            {
+                TempData["response"] = "You have no items in your bag. You need to add items before you can review your cart.";
 
-            //    var payer = new Payer() { payment_method = "paypal" };
+                CheckoutModel PM = new CheckoutModel();
 
-            //    var baseURI = Request.Url.Scheme + "://" + Request.Url.Authority + "/Checkout/PaypalSuccess";
-            //    var guid = Convert.ToString((new Random()).Next(100000));
-            //    var redirectUrl = baseURI + "guid=" + guid;
-            //    var redirUrls = new RedirectUrls()
-            //    {
-            //        cancel_url = redirectUrl + "&cancel=true",
-            //        return_url = redirectUrl
-            //    };
+                return RedirectToAction("ReviewCart", "Cart", PM);
+            }
 
-            //    var details = new Details()
-            //    {
-            //        tax = "15",
-            //        shipping = "10",
-            //        subtotal = "75"
-            //    };
+            else
+            {
+                List<Product> Products = new List<Product>();
+                foreach (string s in CurrentCustomer.CustomerCart.Split(';'))
+                {
+                    Product newProduct = new Product();
 
-            //    var amount = new Amount()
-            //    {
-            //        currency = "USD",
-            //        total = "100.00", // Total must be equal to sum of shipping, tax and subtotal.
-            //        details = details
-            //    };
+                    List<string> innerData = new List<string>();
+                    innerData = s.Replace('}', '\0').Replace('{', '\0').Trim().Split(',').ToList();
 
-            //    var transactionList = new List<PayPal.Api.Transaction>();
+                    if (!string.IsNullOrWhiteSpace(innerData[0]))
+                    {
+                        newProduct.ProductID = int.Parse(innerData[0].Split('=')[1].Trim());
+                        newProduct.Quantity = int.Parse(innerData[1].Split('=')[1 ].Trim());
+                        newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
 
-            //    transactionList.Add(new PayPal.Api.Transaction()
-            //    {
-            //        description = "Transaction description.",
-            //        invoice_number = Common.GetRandomInvoiceNumber(),
-            //        amount = amount,
-            //        item_list = ItemList
-            //    });
+                        if (innerData.Count > 3)
+                        {
+                            for (int i = 3; i < innerData.Count; i++)
+                            {
+                                newProduct._SelectedAttributes.Add(innerData[i]);
+                            }
+                        }
 
-            //    var payment = new PayPal.Api.Payment()
-            //    {
-            //        intent = "sale",
-            //        payer = payer,
-            //        transactions = transactionList,
-            //        redirect_urls = redirUrls
-            //    };
+                        Products.Add(newProduct);
+                    }
+                }
 
-            //    var createdPayment = payment.Create(apiContext);
+                string ProductDataCommandText = "SELECT ProductID, ProductName, ProductDescription, ProductPrice, ProductStock, MktBuy FROM Products WHERE ProductID=@id";
+                SqlCommand ProductDataCommand = new SqlCommand(ProductDataCommandText, oConn);
 
-            //    var links = createdPayment.links.GetEnumerator();
-            //    while (links.MoveNext())
-            //    {
-            //        var link = links.Current;
-            //        if (link.rel.ToLower().Trim().Equals("approval_url"))
-            //        {
-            //            this.flow.RecordRedirectUrl("Redirect to PayPal to approve the payment...", link.href);
-            //        }
-            //    }
-            //    Session.Add(guid, createdPayment.id);
-            //    Session.Add("flow-" + guid, this.flow);4
+                List<Product> NonMarketProducts = new List<Product>();
 
-            //    //}
+                foreach (Product p in Products)
+                {
+                    ProductDataCommand.Parameters.Clear();
+                    ProductDataCommand.Parameters.AddWithValue("@id", p.ProductID);
 
-            return null;
+                    using (SqlDataReader oReader = ProductDataCommand.ExecuteReader())
+                    {
+                        while (oReader.HasRows && oReader.Read())
+                        {
+                            p.ProductID = oReader.GetInt32(0);
+                            p.ProductName = oReader.GetString(1);
+                            p.ProductDescription = oReader.GetString(2);
+                            p.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                            p.ProductStock = oReader.GetInt32(4);
+
+                            if (oReader.GetBoolean(5) == false)
+                            {
+                                NonMarketProducts.Add(p);
+                            }
+                        }
+                    }
+                }
+
+                if (NonMarketProducts.Count > 0)
+                {
+                    CheckoutModel PM = new CheckoutModel();
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("<p>The following products are not applicable for market pickup:<br/>");
+                    
+                    foreach (Product p in NonMarketProducts)
+                    {
+                        sb.AppendLine(p.ProductName + "<br/>");
+                    }
+
+                    sb.AppendLine("<br/>If you have any questions, please visit our booth at the Laramar County Farmers' Market.</p>");
+
+                    TempData["response"] = sb.ToString();
+
+                    return RedirectToAction("ReviewCart", "Cart", PM);
+                }
+
+                foreach (Product p in Products)
+                {
+                    if (p.Quantity > p.ProductStock)
+                    {
+                        TempData["response"] = $"We currently only have {p.ProductStock} stock of {p.ProductName}. Please purchase less than that quantity.";
+
+                        CheckoutModel PM = new CheckoutModel();
+
+                        return RedirectToAction("ReviewCart", "Cart", PM);
+                    }
+                }
+
+                Model._Products = Products;
+
+                string GetActiveDiscountsCommandText = "SELECT * FROM Discounts WHERE AlwaysActive=1";
+                SqlCommand GetActiveDiscountsCommand = new SqlCommand(GetActiveDiscountsCommandText, oConn);
+
+                using (SqlDataReader oReader = GetActiveDiscountsCommand.ExecuteReader())
+                {
+                    while (oReader.HasRows && oReader.Read())
+                    {
+                        Model.DiscountApplied = true;
+                        Model.DiscountName = oReader.GetString(1);
+                        Model.DiscountPercentage = oReader.GetInt32(3);
+                    }
+                }
+
+                int ReturnedOrderID = 0;
+
+                if (!Model.DiscountApplied)
+                {
+                    string InsertOrderCommandText = "INSERT INTO Orders (CustomerID, ProductCount, Cart, OrderProcessed, OrderProcessor, OrderTotal) OUTPUT INSERTED.OrderID VALUES (@id, @count, @cart, @processed, @processor, @total);";
+                    SqlCommand InsertOrderCommand = new SqlCommand(InsertOrderCommandText, oConn);
+                    InsertOrderCommand.Parameters.AddWithValue("@id", CurrentCustomer.CustomerID);
+                    InsertOrderCommand.Parameters.AddWithValue("@count", Products.Count);
+                    InsertOrderCommand.Parameters.AddWithValue("@cart", CurrentCustomer.CustomerCart);
+                    InsertOrderCommand.Parameters.AddWithValue("@processed", 0);
+                    InsertOrderCommand.Parameters.AddWithValue("@processor", "Square");
+                    InsertOrderCommand.Parameters.AddWithValue("@total", Model.CartTotal);
+
+                    ReturnedOrderID = int.Parse(InsertOrderCommand.ExecuteScalar().ToString());
+                }
+                else
+                {
+                    string InsertOrderCommandText = "INSERT INTO Orders (CustomerID, ProductCount, Cart, OrderProcessed, OrderProcessor, OrderTotal, OrderDiscount, OrderDiscountName) OUTPUT INSERTED.OrderID VALUES (@id, @count, @cart, @processed, @processor, @total, @discount, @discountname);";
+                    SqlCommand InsertOrderCommand = new SqlCommand(InsertOrderCommandText, oConn);
+                    InsertOrderCommand.Parameters.AddWithValue("@id", CurrentCustomer.CustomerID);
+                    InsertOrderCommand.Parameters.AddWithValue("@count", Products.Count);
+                    InsertOrderCommand.Parameters.AddWithValue("@cart", CurrentCustomer.CustomerCart);
+                    InsertOrderCommand.Parameters.AddWithValue("@processed", 0);
+                    InsertOrderCommand.Parameters.AddWithValue("@processor", "Square");
+                    InsertOrderCommand.Parameters.AddWithValue("@total", Model.CartTotal);
+                    InsertOrderCommand.Parameters.AddWithValue("@discount", Model.DiscountPercentage);
+                    InsertOrderCommand.Parameters.AddWithValue("@discountname", Model.DiscountName);
+
+                    ReturnedOrderID = int.Parse(InsertOrderCommand.ExecuteScalar().ToString());
+                }
+
+                string UpdateActiveOrderCommandText = $"UPDATE Customers SET ActiveOrder=@orderid WHERE CustomerEmail LIKE '%{email}%'";
+                SqlCommand UpdateActiveOrderCommand = new SqlCommand(UpdateActiveOrderCommandText, oConn);
+                UpdateActiveOrderCommand.Parameters.AddWithValue("@orderid", ReturnedOrderID);
+
+                UpdateActiveOrderCommand.ExecuteNonQuery();
+
+                Model.OrderID = ReturnedOrderID;
+
+                oConn.Close();
+
+                return View("MarketCheckout", Model);
+            }
+        }
+
+        public ActionResult MarketCheckout()
+        {
+            try
+            {
+                if (TempData["response"] != null || !string.IsNullOrWhiteSpace(TempData["response"].ToString()))
+                    ViewBag.Response = TempData["response"].ToString();
+            }
+            catch (NullReferenceException exc)
+            {
+
+            }
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            var user = Membership.GetUser(System.Web.HttpContext.Current.User.Identity.Name);
+            string email = string.Empty;
+
+            if (user != null)
+                email = user.Email;
+            else
+                return RedirectToAction("Login", "Account");
+
+            string CommandText = $"SELECT CustomerID, CustomerCart, CustomerAddress, CustomerOrders, ActiveOrder FROM Customers WHERE CustomerEmail LIKE '%{email}%'";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+
+            CustomerModel CurrentCustomer = new CustomerModel();
+
+            bool UserExists = false;
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                if (oReader.HasRows)
+                {
+                    UserExists = true;
+
+                    while (oReader.Read())
+                    {
+                        CurrentCustomer.CustomerID = oReader.GetGuid(0).ToString();
+                        CurrentCustomer.CustomerCart = oReader.GetString(1);
+                        CurrentCustomer.CustomerAddress = oReader.IsDBNull(2) ? string.Empty : oReader.GetString(2);
+                        CurrentCustomer.CustomerOrders = oReader.IsDBNull(3) ? string.Empty : oReader.GetString(3);
+                        CurrentCustomer.ActiveOrder = oReader.IsDBNull(4) ? 0 : oReader.GetInt32(4);
+                    }
+                }
+            }
+
+            List<Product> Products = new List<Product>();
+
+            if (string.IsNullOrWhiteSpace(CurrentCustomer.CustomerCart))
+            {
+                TempData["response"] = "You have no items in your bag. You need to add items before you can review your cart.";
+
+                ProductsModel PM = new ProductsModel();
+
+                return RedirectToAction("ReviewCart", "Cart", PM);
+            }
+
+            else
+            {
+                foreach (string s in CurrentCustomer.CustomerCart.Split(';'))
+                {
+                    Product newProduct = new Product();
+
+                    List<string> innerData = new List<string>();
+                    innerData = s.Replace('}', '\0').Replace('{', '\0').Trim().Split(',').ToList();
+
+                    if (!string.IsNullOrWhiteSpace(innerData[0]))
+                    {
+                        newProduct.ProductID = int.Parse(innerData[0].Split('=')[1].Trim());
+                        newProduct.Quantity = int.Parse(innerData[1].Split('=')[1].Trim());
+                        newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
+
+                        if (innerData.Count > 3)
+                        {
+                            for (int i = 3; i < innerData.Count; i++)
+                            {
+                                newProduct._SelectedAttributes.Add(innerData[i]);
+                            }
+                        }
+
+                        Products.Add(newProduct);
+                    }
+                }
+            }
+
+            string ProductDataCommandText = "SELECT ProductID, ProductName, ProductDescription, ProductPrice, ProductStock FROM Products WHERE ProductID=@id";
+            SqlCommand ProductDataCommand = new SqlCommand(ProductDataCommandText, oConn);
+
+            foreach (Product p in Products)
+            {
+                ProductDataCommand.Parameters.Clear();
+                ProductDataCommand.Parameters.AddWithValue("@id", p.ProductID);
+
+                using (SqlDataReader oReader = ProductDataCommand.ExecuteReader())
+                {
+                    while (oReader.HasRows && oReader.Read())
+                    {
+                        p.ProductID = oReader.GetInt32(0);
+                        p.ProductName = oReader.GetString(1);
+                        p.ProductDescription = oReader.GetString(2);
+                        p.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                        p.ProductStock = oReader.GetInt32(4);
+                    }
+                }
+            }
+
+            foreach (Product p in Products)
+            {
+                if (p.Quantity > p.ProductStock)
+                {
+                    TempData["response"] = $"We currently only have {p.ProductStock} stock of {p.ProductName}. Please purchase less than that quantity.";
+
+                    ProductsModel PM = new ProductsModel();
+
+                    return RedirectToAction("ReviewCart", "Cart", PM);
+                }
+            }
+
+            Model._Products = Products;
+            Model.IsMarketPurchase = true;
+
+            string OrderCommandText = "SELECT ShippingInfo FROM Orders WHERE OrderID=@orderid";
+            SqlCommand OrderCommand = new SqlCommand(OrderCommandText, oConn);
+            OrderCommand.Parameters.AddWithValue("@orderid", CurrentCustomer.ActiveOrder);
+
+            using (SqlDataReader oReader = OrderCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Model.ShippingInfo = oReader.IsDBNull(0) ? string.Empty : oReader.GetString(0);
+                }
+            }
+
+            return View(Model);
+        }
+
+
+        public ActionResult CashCheckout(int OrderID)
+        {
+            string ShippingInfo = string.Empty;
+            string Cart = string.Empty;
+            List<Product> Products = new List<Product>();
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            string CommandText = "SELECT Cart, ShippingInfo FROM Orders WHERE OrderID = @id";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+            oCommand.Parameters.Add("@id", OrderID);
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Cart = oReader.GetString(0);
+                    ShippingInfo = oReader.GetString(1);
+                }
+            }
+
+            oConn.Close();
+
+            string firstname = ShippingInfo.Split('\n')[0].Split(' ')[0].Trim();
+            string lastname = ShippingInfo.Split('\n')[0].Split(' ')[1].Trim();
+
+            foreach (string s in Cart.Split(';'))
+            {
+                Product newProduct = new Product();
+
+                List<string> innerData = new List<string>();
+                innerData = s.Replace('}', '\0').Replace('{', '\0').Trim().Split(',').ToList();
+
+                if (!string.IsNullOrWhiteSpace(innerData[0]))
+                {
+                    newProduct.ProductID = int.Parse(innerData[0].Split('=')[1].Trim());
+                    newProduct.Quantity = int.Parse(innerData[1].Split('=')[1].Trim());
+                    newProduct.Naked = innerData[2].Split('=')[1].Trim().Contains("Naked") ? true : false;
+
+                    if (innerData.Count > 3)
+                    {
+                        for (int i = 3; i < innerData.Count; i++)
+                        {
+                            newProduct._SelectedAttributes.Add(innerData[i]);
+                        }
+                    }
+
+                    Products.Add(newProduct);
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("An order was placed for market pickup: " + Model.firstname + " " + Model.lastname);
+            sb.AppendLine("Products ordered: ");
+            foreach (Product p in Model.Products)
+            {
+                sb.AppendLine(p.Quantity + "x " + p.ProductName);
+            }
+
+            var link = $"https://sleepytimesoaps.com/Account/Dashboard";
+            var apiKey = ConfigurationManager.AppSettings["SendGridAPIKey"];
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress("admin@sleepytimesoaps.com", "SleepyTimeSoaps Order Management");
+            var to = new EmailAddress("7195516779@tmomail.net");
+            var plainTextContent = sb.ToString();
+            var htmlContent = sb.ToString();
+            var msg = MailHelper.CreateSingleEmail(from, to, "Order", plainTextContent, htmlContent);
+            var response = Task.Run(async () => await client.SendEmailAsync(msg)).Result;
+
+            return RedirectToAction("Confirmation", "Checkout");
+        }
+
+        public ActionResult UpdateMarketContact(CheckoutModel Model, int OrderID, string firstname, string lastname, string email)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(firstname + " " + lastname);
+            sb.AppendLine("MARKET");
+            sb.AppendLine("PICKUP");
+            sb.AppendLine("NULL, NULL 00000");
+
+            SqlConnection oConn = new SqlConnection(AccessModel.SqlConnection);
+            oConn.Open();
+
+            string CommandText = "UPDATE Orders SET ShippingInfo=@shipping WHERE OrderID=@orderid";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+            oCommand.Parameters.AddWithValue("@shipping", sb.ToString());
+            oCommand.Parameters.AddWithValue("@orderid", OrderID);
+
+            oCommand.ExecuteNonQuery();
+
+            oConn.Close();
+
+            foreach (Product p in Model.Products)
+            {
+                Debug.WriteLine(p.ProductName);
+            }
+
+            Model.ShippingInfo = sb.ToString();
+
+            TempData["response"] = "Market contact information successfully updated.";
+            return RedirectToAction("MarketCheckout", Model);
         }
     }
 }

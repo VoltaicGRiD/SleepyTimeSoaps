@@ -22,6 +22,55 @@
     .tooltip {
         font-size: 12pt;
     }
+
+    .categoryContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-left: 20px;
+        width: 100%;
+    }
+
+    .categoryButton {
+        margin-right: 50px;
+        background-color: transparent;
+        border: none;
+        color: white;
+        width: 200px;
+    }
+
+        .categoryButton:hover {
+            text-decoration: none;
+            color: #a363ec;
+        }
+
+    .categoryLine {
+        margin-top: -10px;
+        border-top: 4px solid white;
+        width: 100%;
+    }
+
+    .categoryButtonSelected {
+        margin-right: 50px;
+        background-color: transparent;
+        border: none;
+        color: #a363ec;
+        width: 200px;
+    }
+
+        .categoryButtonSelected:hover {
+            text-decoration: none;
+            color: white;
+        }
+
+    .categoryLineSelected {
+        margin-top: -10px;
+        border-top: 4px solid #a363ec;
+        text-shadow: 0 0 2px gold;
+        width: 100%;
+    }
+
 </style>
 
 <script src="https://code.jquery.com/jquery-1.10.0.min.js"
@@ -70,7 +119,52 @@
             <span class="product-tag-header"><img src="~/Content/Images/AllergyTopTag.png" class="product-tag-img-header" /> = product is allergy friendly</span>
         </p>
 
-
+        <div class="categoryContainer">
+            <div class="row">
+                @if (Model.SelectedCategory == ProductsModel.Categories.soap)
+                {
+                    <a class="categoryButtonSelected" href="javascript:history.go(-1)">
+                        <p class="text-center">Soaps</p>
+                        <hr class="categoryLineSelected" />
+                    </a>
+                }
+                else
+                {
+                    <a class="categoryButton" href="/Products/Index/category=soap">
+                        <p class="text-center">Soaps</p>
+                        <hr class="categoryLine" />
+                    </a>
+                }
+                @if (Model.SelectedCategory == ProductsModel.Categories.waxmelts)
+                {
+                    <a class="categoryButtonSelected" href="javascript:history.go(-1)">
+                        <p class="text-center">Wax Melts</p>
+                        <hr class="categoryLineSelected" />
+                    </a>
+                }
+                else
+                {
+                    <a class="categoryButton" href="/Products/Index/category=waxmelts">
+                        <p class="text-center">Wax Melts</p>
+                        <hr class="categoryLine" />
+                    </a>
+                }
+                @if (Model.SelectedCategory == ProductsModel.Categories.bathsalts)
+                {
+                    <a class="categoryButtonSelected" href="javascript:history.go(-1)">
+                        <p class="text-center">Bath Salts</p>
+                        <hr class="categoryLineSelected" />
+                    </a>
+                }
+                else
+                {
+                    <a class="categoryButton" href="/Products/Index/category=bathsalts">
+                        <p class="text-center">Bath Salts</p>
+                        <hr class="categoryLine" />
+                    </a>
+                }
+            </div>
+        </div>
 
         <div class="row flex-fill d-flex justify-content-center" style="padding-right: 0px;">
             @foreach (Product product in Model.Products)
@@ -154,10 +248,21 @@
 
                             </div>
                             <div class="card-body product-card-body" style="padding: 15px 20px 15px 20px;" data-toggle="tooltip" data-placement="right" title="@product.ProductDescription">
-                                @if (product.ProductDescription.Length > 120)
+                                @if (product.ProductDescription.Length > 120 && !product.ProductIsBundle)
                                 {
                                     string newDescription = product.ProductDescription.Substring(0, 110) + "...";
                                     <p>@newDescription.Trim()</p>
+                                }
+                                else if (product.ProductIsBundle)
+                                {
+
+                                    <p><b>This bundle includes:</b>
+                                        @foreach (string s in product.ProductBundle.Split(','))
+                                        {
+                                            <br/>
+                                            <span style="font-size: 11pt;"> - @s</span>
+                                        }
+                                    </p>
                                 }
                                 else
                                 {
@@ -166,7 +271,14 @@
                             </div>
                             <div class="card-footer product-card-footer w-100" style="height: 50px; position: absolute; bottom: 0;">
                                 <p class="alignleft product-price" style="font-size: 13pt; font-weight: 600;">$@Math.Round(product.ProductPrice) USD</p>
-                                <p class="product-scent">@product.ProductScentProfile</p>
+                                @if (!product.ProductIsBundle)
+                                {
+                                    <p class="product-scent">@product.ProductScentProfile</p>
+                                }
+                                else
+                                {
+                                    <p class="product-scent">Bundle</p>
+                                }
                                 @if (!product.ProductHasAttributes)
                                 {
                                     <a class="BagButton" href="/Cart/AddToCartSimple/@product.ProductID"><i class="bi bi-bag-plus-fill" style="font-size: 1.5rem;"></i></a>

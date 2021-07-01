@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Principal;
-using System.Web;
 
 namespace SleepyTimeSoaps.CustomAuthentication
 {
@@ -33,7 +30,7 @@ namespace SleepyTimeSoaps.CustomAuthentication
                 return false;
             }
         }
-        
+
         public string GetEmail()
         {
             return Email;

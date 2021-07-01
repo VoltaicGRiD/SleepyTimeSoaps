@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Xml;
 
 namespace SleepyTimeSoaps.Models
@@ -31,6 +30,8 @@ namespace SleepyTimeSoaps.Models
         public bool ProductIsRecommended { get; set; } = false;
         public bool ProductIsClearance { get; set; } = false;
         public bool ProductIsAllergyFriendly { get; set; } = false;
+        public bool ProductIsBundle { get; set; } = false;
+        public string ProductBundle { get; set; }
         public List<AttributeModel> _Attributes = new List<AttributeModel>();
         public List<AttributeModel> Attributes { get { return _Attributes; } }
         public bool Naked { get; set; } = false;
@@ -39,7 +40,7 @@ namespace SleepyTimeSoaps.Models
         public List<string> _SelectedAttributes = new List<string>();
         public List<string> SelectedAttributes { get { return _SelectedAttributes; } }
 
-        public float FinalProductPrice 
+        public float FinalProductPrice
         {
             get
             {

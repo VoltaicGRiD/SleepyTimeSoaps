@@ -25,8 +25,7 @@
 
 <div class="bg-secondary w-100" style="border-radius: 20px;">
 
-    <div class="bg-image hover-overlay ripple shadow-1-strong rounded m-4" style="padding-top: 20px; padding-bottom: 15px;"
-         data-mdb-ripple-color="light">
+    <div class="bg-image hover-overlay ripple shadow-1-strong rounded m-4" style="padding-top: 20px; padding-bottom: 90px;" data-mdb-ripple-color="light">
 
         <h2 class="text-white">My Bag</h2>
 
@@ -107,8 +106,22 @@
                 </tbody>
             </table>
         </div>
-
-        <a class="btn btn-primary w-100" data-toggle="tooltip" data-placement="top" data-html="true" title="Checkout using Square's secure payment gateway.<br/><br/>You can use a Credit or Debit card with this option." href="/Checkout/NewCheckout/">Checkout</a>
+        <div class="float-left">
+            @using (Html.BeginForm("NewMarketCheckout", "Checkout"))
+            {
+                <label for="MarketID" class="text-white">I'm at a market:</label>
+                <br/>
+                <select class="custom-form-select" id="MarketID" name="MarketID" style="padding-top: 1px; padding-left: 5px; padding-right: 5px;">
+                    <option selected>select your market</option>
+                    <option>Backyard Market at The Farm</option>
+                    <option>Springs Farmers Market at Banning Lewis Ranch</option>
+                </select>
+                <button type="submit" class="btn btn-success active w-30" style="position: relative; top: -2px;">Market Checkout</button>
+            }
+        </div>
+        <div class="float-right">
+            <a class="btn btn-primary w-30" data-toggle="tooltip" data-placement="top" data-html="true" title="Checkout using Square's secure payment gateway.<br/><br/>You can use a Credit or Debit card with this option." href="/Checkout/NewCheckout/">Checkout</a>
+        </div>
         <!-- PAYPAL BUTTON TOOLTIP :: Checkout using Paypal's secure payment gateway.<br/><br/>You can use a Credit or Debit card with this option. -->
     </div>
 </div>
@@ -125,7 +138,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @ViewBag.Response
+                    @Html.Raw(ViewBag.Response)
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

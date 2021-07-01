@@ -1,20 +1,18 @@
 ﻿using Newtonsoft.Json;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using SleepyTimeSoaps.CustomAuthentication;
 using SleepyTimeSoaps.DataAccess;
 using SleepyTimeSoaps.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using SendGrid;
-using SendGrid.Helpers.Mail;
-using System.Threading.Tasks;
-using System.Configuration;
 
 namespace SleepyTimeSoaps.Controllers
 {
@@ -116,7 +114,7 @@ namespace SleepyTimeSoaps.Controllers
                 {
                     ModelState.AddModelError("", "The passwords do not match.");
                     return View(registrationView);
-                }                
+                }
 
                 //Save User Data   
                 using (AuthenticationDB dbContext = new AuthenticationDB())
@@ -199,7 +197,7 @@ namespace SleepyTimeSoaps.Controllers
             return RedirectToAction("Login", "Account", null);
         }
 
-        
+
         public async Task VerificationEmail(string email, string activationCode)
         {
             var link = $"https://sleepytimesoaps.com/Account/AccountActivation/{activationCode}";
@@ -219,7 +217,6 @@ namespace SleepyTimeSoaps.Controllers
             //var fromEmail = new MailAddress("postmaster@sleepytimesoaps.com", "SleepyTimeSoaps Account Manager");
             //var toEmail = new MailAddress(email);
 
-            //var fromEmailPassword = "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";
             //string subject = "Verify your account with SleepyTimeSoaps";
 
             //string body = "<a href=\"https://sleepytimesoaps.com\"><img src=\"https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo3.png\" width=200px></a> <br/> Please click on the following link in order to activate your account" + "<br/><a href='" + link + "'>Activate Account</a>";
@@ -277,7 +274,7 @@ namespace SleepyTimeSoaps.Controllers
                     newOrder.OrderID = oReader.GetInt32(0);
                     newOrder.Cart = oReader.GetString(1);
                     newOrder.OrderNotes = oReader.IsDBNull(2) ? "None" : oReader.GetString(2);
-                    newOrder.OrderTotal = (float) oReader.GetDouble(3);
+                    newOrder.OrderTotal = (float)oReader.GetDouble(3);
                     newOrder.ShippingInfo = oReader.GetString(4);
                     newOrder.DiscountPercentage = oReader.IsDBNull(2) ? 0 : oReader.GetInt32(5);
                     newOrder.DiscountName = oReader.IsDBNull(2) ? "None" : oReader.GetString(6);
@@ -366,7 +363,7 @@ namespace SleepyTimeSoaps.Controllers
                     if (oReader.HasRows)
                         UserExists = true;
                 }
-                
+
                 if (UserExists == false)
                 {
                     string CreateCustomerCommandText = "INSERT INTO Customers (CustomerID, CustomerName, CustomerEmail) VALUES (@id, @name, @email)";

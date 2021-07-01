@@ -1,12 +1,10 @@
-﻿using System;
+﻿using SleepyTimeSoaps.Models;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Xml;
-using SleepyTimeSoaps.Models;
 
 namespace SleepyTimeSoaps.Controllers
 {
@@ -174,10 +172,10 @@ namespace SleepyTimeSoaps.Controllers
                 returnedModel = GatherAllProducts();
             }
 
-            return View(returnedModel);
+            return View("Index", returnedModel);
         }
 
-        private ActionResult ShopForHer(string id = "")
+        public ActionResult ShopForHer(string id = "")
         {
             switch (id)
             {
@@ -259,7 +257,7 @@ namespace SleepyTimeSoaps.Controllers
             return View("Index", returnedModel);
         }
 
-        private ActionResult ShopForHim(string id = "")
+        public ActionResult ShopForHim(string id = "")
         {
             switch (id)
             {
@@ -341,36 +339,41 @@ namespace SleepyTimeSoaps.Controllers
             return View("Index", returnedModel);
         }
 
-        private ActionResult RenderProduct(int id)
+        public ActionResult RenderProduct(int id)
         {
             Product newProduct = new Product();
 
             SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
             oConn.Open();
 
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductID=@id";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND ProductID=@id";
 
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
             oCommand.Parameters.AddWithValue("@id", id);
 
             using (SqlDataReader oReader = oCommand.ExecuteReader())
             {
-                newProduct.ProductID = oReader.GetInt32(0);
-                newProduct.ProductName = oReader.GetString(1);
-                newProduct.ProductScentProfile = oReader.GetString(2);
-                newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
-                newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
-                newProduct.ProductDescription = oReader.GetString(5);
-                newProduct.ProductIsRecommended = oReader.GetBoolean(6);
-                newProduct.ProductIsClearance = oReader.GetBoolean(7);
-                newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
-                newProduct.ProductHasAttributes = oReader.GetBoolean(9);
-                newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                while (oReader.HasRows && oReader.Read())
+                {
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductScentProfile = oReader.GetString(2);
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                    newProduct.ProductDescription = oReader.GetString(5);
+                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
+                }
             }
 
             oConn.Close();
 
-            return View("ProductPartial", newProduct);
+            return PartialView("ProductPartial", newProduct);
         }
 
         private ProductsModel GatherProductsByCategory(string Category)
@@ -381,11 +384,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductType=@category";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductType=@category";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductType=@category";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND ProductType=@category";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -407,6 +410,8 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -425,11 +430,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsRecommended=1";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsRecommended=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductIsRecommended=1";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND ProductIsRecommended=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -449,6 +454,8 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -467,53 +474,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductTags LIKE '%{tag}%'";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductTags LIKE '%{tag}%'";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductTags LIKE '%{tag}%'";
-            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
-#endif
-
-            using (SqlDataReader oReader = oCommand.ExecuteReader())
-            {
-                while (oReader.HasRows && oReader.Read())
-                {
-                    Product newProduct = new Product();
-                    newProduct.ProductID = oReader.GetInt32(0); 
-                    newProduct.ProductName = oReader.GetString(1);
-                    newProduct.ProductScentProfile = oReader.GetString(2);
-                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
-                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
-                    newProduct.ProductDescription = oReader.GetString(5);
-                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
-                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
-                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
-                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
-                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
-
-                    Model.Products.Add(newProduct);
-                }
-            }
-
-            oConn.Close();
-
-            return Model;
-        }
-
-        public ActionResult Clearance()
-        {
-            ProductsModel Model = new ProductsModel();
-
-            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
-            oConn.Open();
-
-#if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsClearance=1";
-            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
-#endif
-#if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND ProductIsClearance=1";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND ProductTags LIKE '%{tag}%'";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -533,6 +498,52 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
+
+                    Model.Products.Add(newProduct);
+                }
+            }
+
+            oConn.Close();
+
+            return Model;
+        }
+
+        public ActionResult Clearance()
+        {
+            ProductsModel Model = new ProductsModel();
+
+            SqlConnection oConn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            oConn.Open();
+
+#if DEBUG
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsClearance=1";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+#if (!DEBUG)
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND ProductIsClearance=1";
+            SqlCommand oCommand = new SqlCommand(CommandText, oConn);
+#endif
+
+            using (SqlDataReader oReader = oCommand.ExecuteReader())
+            {
+                while (oReader.HasRows && oReader.Read())
+                {
+                    Product newProduct = new Product();
+                    newProduct.ProductID = oReader.GetInt32(0);
+                    newProduct.ProductName = oReader.GetString(1);
+                    newProduct.ProductScentProfile = oReader.GetString(2);
+                    newProduct.ProductPrice = float.Parse(oReader.GetValue(3).ToString());
+                    newProduct.ProductPrimaryImageUrl = oReader.IsDBNull(4) ? "https://sleepytimesoapsdata.blob.core.windows.net/productimages/Company_logo2.png" : oReader.GetString(4);
+                    newProduct.ProductDescription = oReader.GetString(5);
+                    newProduct.ProductIsRecommended = oReader.GetBoolean(6);
+                    newProduct.ProductIsClearance = oReader.GetBoolean(7);
+                    newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
+                    newProduct.ProductHasAttributes = oReader.GetBoolean(9);
+                    newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -552,11 +563,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -576,6 +587,8 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -594,11 +607,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductGender=2 OR ProductGender=4";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductGender=2 OR ProductGender=4";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND (ProductGender=2 OR ProductGender=4)";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND (ProductGender=2 OR ProductGender=4)";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -618,6 +631,8 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -636,11 +651,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductGender=1 OR ProductGender=4";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductGender=1 OR ProductGender=4";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND (ProductGender=1 OR ProductGender=4)";
+            string CommandText = "SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND (ProductGender=1 OR ProductGender=4)";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -660,6 +675,8 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -678,11 +695,11 @@ namespace SleepyTimeSoaps.Controllers
             oConn.Open();
 
 #if DEBUG
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%'";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%'";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 #if (!DEBUG)
-            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews FROM Products WHERE ProductIsReleased=1 AND (ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%')";
+            string CommandText = $"SELECT ProductID, ProductName, ProductScentProfile, ProductPrice, ProductPrimaryImageUrl, ProductDescription, ProductIsRecommended, ProductIsClearance, ProductIsAllergyFriendly, ProductHasAttributes, ProductReviews, ProductIsBundle, ProductBundle FROM Products WHERE ProductIsReleased=1 AND (ProductName LIKE '%{SearchText}%' OR ProductCategory LIKE '%{SearchText}%' OR ProductTags LIKE '%{SearchText}%' OR ProductScentProfile LIKE '%{SearchText}%')";
             SqlCommand oCommand = new SqlCommand(CommandText, oConn);
 #endif
 
@@ -702,6 +719,8 @@ namespace SleepyTimeSoaps.Controllers
                     newProduct.ProductIsAllergyFriendly = oReader.GetBoolean(8);
                     newProduct.ProductHasAttributes = oReader.GetBoolean(9);
                     newProduct.ReviewXMLRaw = oReader.IsDBNull(10) ? string.Empty : oReader.GetString(10);
+                    newProduct.ProductIsBundle = oReader.GetBoolean(11);
+                    newProduct.ProductBundle = oReader.IsDBNull(12) ? string.Empty : oReader.GetString(12);
 
                     Model.Products.Add(newProduct);
                 }
@@ -751,6 +770,8 @@ namespace SleepyTimeSoaps.Controllers
                     selectedProduct.ProductScentProfile = oReader.GetString(14);
                     selectedProduct.ProductStock = oReader.GetInt32(15);
                     selectedProduct.ReviewXMLRaw = oReader.IsDBNull(20) ? string.Empty : oReader.GetString(20);
+                    selectedProduct.ProductIsBundle = oReader.GetBoolean(22);
+                    selectedProduct.ProductBundle = oReader.IsDBNull(23) ? string.Empty : oReader.GetString(23);
                 }
             }
 
@@ -800,8 +821,8 @@ namespace SleepyTimeSoaps.Controllers
 
             return View(selectedProduct);
         }
-        
-        
+
+
     }
 
 
