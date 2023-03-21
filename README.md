@@ -1,6 +1,9 @@
 # Sleepy Time Soaps
 
 ## DEPRECATED
+This code is no longer utilized. All existing keys and database references no longer exist. They are left as placeholder for anyone interested in utilizing the repository as a template. 
+
+This code is not commented, as a variety of the comments pertained only to the infrastructure that was being built at the time. If asked, I can easily go through and comment the code for future readers.
 
 ## Design and Development
 This is a website designed for my wife's soap-making business. It has since been depricated in favor of a more modular system integrated directly with payment processing API's through 'Shop'.
